@@ -1,0 +1,20 @@
+{
+  "name": "@kodira/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo \"@kodira/api-client: nothing to build\"",
+    "dev": "echo \"@kodira/api-client: nothing to dev\"",
+    "lint": "echo \"@kodira/api-client: nothing to lint\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@kodira/types": "workspace:*",
+    "axios": "^1.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}

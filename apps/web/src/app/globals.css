@@ -1,0 +1,68 @@
+@import url('https://api.fontshare.com/v2/css?f=satoshi@400,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --font-display: 'Satoshi';
+
+    --bg: 0 0% 100%;
+    --fg: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --muted: 240 4.8% 95.9%;
+    --muted-fg: 240 3.8% 46.1%;
+
+    --border: 240 5.9% 90%;
+
+    --primary: 217 91% 60%;
+    --primary-fg: 0 0% 100%;
+    --violet: 239 84% 67%;
+
+    --success: 142 71% 45%;
+    --success-fg: 144 70% 96%;
+
+    --danger: 0 84% 60%;
+    --danger-fg: 0 86% 97%;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --bg: 240 15% 5%;
+    --fg: 0 0% 98%;
+
+    --card: 240 18% 8%;
+    --muted: 240 13% 12%;
+    --muted-fg: 240 6% 72%;
+
+    --border: 240 10% 18%;
+
+    --primary: 217 91% 60%;
+    --primary-fg: 0 0% 100%;
+    --violet: 239 84% 67%;
+
+    --success: 142 70% 45%;
+    --success-fg: 144 70% 96%;
+
+    --danger: 0 84% 63%;
+    --danger-fg: 0 86% 97%;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-bg text-fg antialiased;
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.25);
+  }
+}

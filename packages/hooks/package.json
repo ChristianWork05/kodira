@@ -1,0 +1,30 @@
+{
+  "name": "@kodira/hooks",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo \"@kodira/hooks: nothing to build\"",
+    "dev": "echo \"@kodira/hooks: nothing to dev\"",
+    "lint": "echo \"@kodira/hooks: nothing to lint\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@kodira/api-client": "workspace:*",
+    "@kodira/types": "workspace:*",
+    "@tanstack/react-query": "^5.83.0"
+  },
+  "peerDependencies": {
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "react": "^18",
+    "react-dom": "^18",
+    "typescript": "^5.9.2"
+  }
+}

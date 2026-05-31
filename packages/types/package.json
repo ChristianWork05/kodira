@@ -1,0 +1,16 @@
+{
+  "name": "@kodira/types",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "echo \"@kodira/types: nothing to build\"",
+    "dev": "echo \"@kodira/types: nothing to dev\"",
+    "lint": "echo \"@kodira/types: nothing to lint\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
