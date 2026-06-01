@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
+import { EducationModule } from './education/education.module';
 
 function findRepoRoot(startDir: string): string {
   let dir = startDir;
@@ -45,7 +46,7 @@ async function generateOpenApi() {
 
   const openapiDocument = SwaggerModule.createDocument(app, swaggerConfig, {
     deepScanRoutes: true,
-    include: [HealthModule, UsersModule, AuthModule],
+    include: [HealthModule, UsersModule, AuthModule, EducationModule],
   });
 
   const repoRoot = findRepoRoot(__dirname);

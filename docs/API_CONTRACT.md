@@ -62,7 +62,7 @@ Todos los errores siguen un shape consistente:
 }
 ```
 
-- **Respuesta 200**
+- **Respuesta 201**
 
 ```json
 {
@@ -108,7 +108,7 @@ Todos los errores siguen un shape consistente:
 }
 ```
 
-- **Respuesta 200**: igual a `/auth/register`.
+- **Respuesta 200**: igual a `/auth/register` (mismo shape).
 
 ### POST `/api/v1/auth/refresh`
 
@@ -237,3 +237,101 @@ Todos los errores siguen un shape consistente:
   "createdAt": "2026-05-31T00:00:00.000Z"
 }
 ```
+
+## Education
+
+## Courses
+
+### GET `/api/v1/courses`
+
+- **Auth**: pública
+- **Query** (opcionales)
+  - `page` (default 1)
+  - `limit` (default 20, max 50)
+  - `categorySlug`
+  - `level` (`beginner|intermediate|advanced`)
+  - `q` (búsqueda de texto)
+  - `isFree` (`true|false`)
+  - `minPrice`, `maxPrice`
+  - `sort` (`popular|new`)
+- **Respuesta 200**
+
+```json
+{
+  "items": [],
+  "page": 1,
+  "limit": 20,
+  "total": 0,
+  "totalPages": 1
+}
+```
+
+### GET `/api/v1/courses/:slug`
+
+- **Auth**: pública (Bearer opcional)
+- **Respuesta 200**: `Course`
+- **Notas**
+  - `solutionCode` nunca se expone en este endpoint.
+  - Si el usuario no está inscrito, las lecciones que no sean `isFreePreview` vienen con `content`/`videoId` en `null`.
+
+### POST `/api/v1/courses`
+
+- **Auth**: Bearer + rol `instructor`
+- **Crea** el curso en `draft` (slug autogenerado)
+- **Respuesta 201**: `Course` (vista instructor)
+
+### PUT `/api/v1/courses/:id`
+
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Respuesta 200**: `Course` (vista instructor)
+
+### POST `/api/v1/courses/:id/sections`
+
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Respuesta 201**: `Course` (vista instructor)
+
+### PUT `/api/v1/courses/:id/sections/:sectionId`
+
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Respuesta 200**: `Course` (vista instructor)
+
+### DELETE `/api/v1/courses/:id/sections/:sectionId`
+
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Respuesta 200**
+
+```json
+{ "ok": true }
+```
+
+### POST `/api/v1/courses/:id/sections/:sectionId/lessons`
+
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Respuesta 201**: `Course` (vista instructor)
+
+### PUT `/api/v1/courses/:id/sections/:sectionId/lessons/:lessonId`
+
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Respuesta 200**: `Course` (vista instructor)
+
+### DELETE `/api/v1/courses/:id/sections/:sectionId/lessons/:lessonId`
+
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Respuesta 200**
+
+```json
+{ "ok": true }
+```
+
+### POST `/api/v1/courses/:id/publish`
+
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Valida**
+  - `thumbnailUrl` presente
+  - ≥1 sección con ≥1 lección
+- **Respuesta 200**: `Course` (ya en `published`)
+
+### GET `/api/v1/courses/categories`
+
+- **Auth**: pública
+- **Respuesta 200**: `Category[]`

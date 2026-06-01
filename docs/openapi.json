@@ -324,6 +324,593 @@
           "Auth"
         ]
       }
+    },
+    "/api/v1/courses": {
+      "get": {
+        "operationId": "EducationController_listCourses",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "categorySlug",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "beginner",
+                "intermediate",
+                "advanced"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Búsqueda de texto (title/description/tags)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isFree",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "minPrice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxPrice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "popular",
+              "enum": [
+                "popular",
+                "new"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListCoursesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ]
+      },
+      "post": {
+        "operationId": "EducationController_createCourse",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/categories": {
+      "get": {
+        "operationId": "EducationController_listCategories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{slug}": {
+      "get": {
+        "operationId": "EducationController_getCourseBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{id}": {
+      "put": {
+        "operationId": "EducationController_updateCourse",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{id}/sections": {
+      "post": {
+        "operationId": "EducationController_addSection",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSectionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{id}/sections/{sectionId}": {
+      "put": {
+        "operationId": "EducationController_updateSection",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSectionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "EducationController_deleteSection",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "ok": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{id}/sections/{sectionId}/lessons": {
+      "post": {
+        "operationId": "EducationController_addLesson",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddLessonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{id}/sections/{sectionId}/lessons/{lessonId}": {
+      "put": {
+        "operationId": "EducationController_updateLesson",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lessonId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLessonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "EducationController_deleteLesson",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lessonId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "ok": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{id}/publish": {
+      "post": {
+        "operationId": "EducationController_publishCourse",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -712,6 +1299,949 @@
         "required": [
           "token"
         ]
+      },
+      "CourseInstructorDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "object",
+            "nullable": true
+          },
+          "avatarUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "bio": {
+            "type": "object",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "example": [
+              "instructor"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "student",
+                "instructor",
+                "mentor",
+                "admin"
+              ]
+            }
+          },
+          "xp": {
+            "type": "number",
+            "example": 0
+          },
+          "currentStreak": {
+            "type": "number",
+            "example": 0
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "fullName",
+          "avatarUrl",
+          "bio",
+          "roles",
+          "xp",
+          "currentStreak",
+          "createdAt"
+        ]
+      },
+      "CategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "object",
+            "nullable": true
+          },
+          "order": {
+            "type": "number",
+            "example": 0
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "icon",
+          "order",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CourseMetricsDto": {
+        "type": "object",
+        "properties": {
+          "durationHours": {
+            "type": "number",
+            "example": 0
+          },
+          "lessonCount": {
+            "type": "number",
+            "example": 0
+          },
+          "enrollmentCount": {
+            "type": "number",
+            "example": 0
+          },
+          "rating": {
+            "type": "number",
+            "example": 0
+          },
+          "reviewCount": {
+            "type": "number",
+            "example": 0
+          },
+          "completionRate": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "durationHours",
+          "lessonCount",
+          "enrollmentCount",
+          "rating",
+          "reviewCount",
+          "completionRate"
+        ]
+      },
+      "CourseListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "shortDescription": {
+            "type": "object",
+            "nullable": true
+          },
+          "instructor": {
+            "$ref": "#/components/schemas/CourseInstructorDto"
+          },
+          "category": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CategoryDto"
+              }
+            ]
+          },
+          "level": {
+            "type": "object"
+          },
+          "language": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "example": 0
+          },
+          "discountPrice": {
+            "type": "object",
+            "nullable": true
+          },
+          "isFree": {
+            "type": "boolean",
+            "example": false
+          },
+          "thumbnailUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "example": "published"
+          },
+          "publishedAt": {
+            "type": "object",
+            "nullable": true
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/CourseMetricsDto"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug",
+          "shortDescription",
+          "instructor",
+          "category",
+          "level",
+          "language",
+          "price",
+          "discountPrice",
+          "isFree",
+          "thumbnailUrl",
+          "state",
+          "publishedAt",
+          "metrics"
+        ]
+      },
+      "ListCoursesResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseListItemDto"
+            }
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 0
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "LessonQuizQuestionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "correctOptionIndex": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "prompt",
+          "options",
+          "correctOptionIndex"
+        ]
+      },
+      "LessonQuizDto": {
+        "type": "object",
+        "properties": {
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LessonQuizQuestionDto"
+            }
+          }
+        },
+        "required": [
+          "questions"
+        ]
+      },
+      "LessonCodeExerciseDto": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "object",
+            "nullable": true
+          },
+          "starterCode": {
+            "type": "object",
+            "nullable": true
+          },
+          "solutionCode": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "prompt",
+          "starterCode",
+          "solutionCode"
+        ]
+      },
+      "LessonDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number",
+            "example": 0
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "video",
+              "text",
+              "quiz",
+              "code",
+              "live",
+              "resource"
+            ]
+          },
+          "videoId": {
+            "type": "object",
+            "nullable": true
+          },
+          "videoDuration": {
+            "type": "object",
+            "nullable": true,
+            "example": 120
+          },
+          "content": {
+            "type": "object",
+            "nullable": true
+          },
+          "isFreePreview": {
+            "type": "boolean",
+            "example": false
+          },
+          "dripDays": {
+            "type": "object",
+            "nullable": true
+          },
+          "quiz": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LessonQuizDto"
+              }
+            ]
+          },
+          "codeExercise": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LessonCodeExerciseDto"
+              }
+            ]
+          },
+          "resourceUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transcript": {
+            "type": "object",
+            "nullable": true
+          },
+          "subtitleUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "aiSummary": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "order",
+          "type",
+          "videoId",
+          "videoDuration",
+          "content",
+          "isFreePreview",
+          "dripDays",
+          "quiz",
+          "codeExercise",
+          "resourceUrls",
+          "transcript",
+          "subtitleUrl",
+          "aiSummary"
+        ]
+      },
+      "SectionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number",
+            "example": 0
+          },
+          "lessons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LessonDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "order",
+          "lessons"
+        ]
+      },
+      "CourseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": "object",
+            "nullable": true
+          },
+          "shortDescription": {
+            "type": "object",
+            "nullable": true
+          },
+          "instructor": {
+            "$ref": "#/components/schemas/CourseInstructorDto"
+          },
+          "category": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CategoryDto"
+              }
+            ]
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ]
+          },
+          "language": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "example": 0
+          },
+          "discountPrice": {
+            "type": "object",
+            "nullable": true
+          },
+          "isFree": {
+            "type": "boolean",
+            "example": false
+          },
+          "thumbnailUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "promoVideoUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objectives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "targetAudience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "review",
+              "published",
+              "archived"
+            ],
+            "default": "draft"
+          },
+          "publishedAt": {
+            "type": "object",
+            "nullable": true
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/CourseMetricsDto"
+          },
+          "dripEnabled": {
+            "type": "boolean",
+            "example": false
+          },
+          "aiDescription": {
+            "type": "object",
+            "nullable": true
+          },
+          "embedding": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SectionDto"
+            }
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug",
+          "description",
+          "shortDescription",
+          "instructor",
+          "category",
+          "level",
+          "language",
+          "price",
+          "discountPrice",
+          "isFree",
+          "thumbnailUrl",
+          "promoVideoUrl",
+          "tags",
+          "requirements",
+          "objectives",
+          "targetAudience",
+          "state",
+          "publishedAt",
+          "metrics",
+          "dripEnabled",
+          "aiDescription",
+          "embedding",
+          "sections",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateCourseDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "object",
+            "nullable": true
+          },
+          "shortDescription": {
+            "type": "object",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "object",
+            "nullable": true
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "example": "es"
+          },
+          "price": {
+            "type": "number",
+            "example": 0
+          },
+          "discountPrice": {
+            "type": "object",
+            "nullable": true
+          },
+          "isFree": {
+            "type": "boolean",
+            "example": true
+          },
+          "thumbnailUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "promoVideoUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "tags": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requirements": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objectives": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "targetAudience": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dripEnabled": {
+            "type": "boolean",
+            "default": false
+          },
+          "aiDescription": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "title",
+          "level",
+          "language",
+          "price",
+          "isFree"
+        ]
+      },
+      "UpdateCourseDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "object",
+            "nullable": true
+          },
+          "shortDescription": {
+            "type": "object",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "object",
+            "nullable": true
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "example": "es"
+          },
+          "price": {
+            "type": "number"
+          },
+          "discountPrice": {
+            "type": "object",
+            "nullable": true
+          },
+          "isFree": {
+            "type": "boolean"
+          },
+          "thumbnailUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "promoVideoUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objectives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "targetAudience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dripEnabled": {
+            "type": "boolean"
+          },
+          "aiDescription": {
+            "type": "object",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "review",
+              "archived"
+            ]
+          }
+        }
+      },
+      "AddSectionDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "UpdateSectionDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          }
+        }
+      },
+      "AddLessonDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "video",
+              "text",
+              "quiz",
+              "code",
+              "live",
+              "resource"
+            ]
+          },
+          "videoId": {
+            "type": "object",
+            "nullable": true
+          },
+          "videoDuration": {
+            "type": "object",
+            "nullable": true
+          },
+          "content": {
+            "type": "object",
+            "nullable": true
+          },
+          "isFreePreview": {
+            "type": "boolean",
+            "default": false
+          },
+          "dripDays": {
+            "type": "object",
+            "nullable": true
+          },
+          "quiz": {
+            "type": "object",
+            "nullable": true
+          },
+          "codeExercise": {
+            "type": "object",
+            "nullable": true
+          },
+          "resourceUrls": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transcript": {
+            "type": "object",
+            "nullable": true
+          },
+          "subtitleUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "aiSummary": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "title",
+          "type"
+        ]
+      },
+      "UpdateLessonDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "video",
+              "text",
+              "quiz",
+              "code",
+              "live",
+              "resource"
+            ]
+          },
+          "videoId": {
+            "type": "object",
+            "nullable": true
+          },
+          "videoDuration": {
+            "type": "object",
+            "nullable": true
+          },
+          "content": {
+            "type": "object",
+            "nullable": true
+          },
+          "isFreePreview": {
+            "type": "boolean"
+          },
+          "dripDays": {
+            "type": "object",
+            "nullable": true
+          },
+          "quiz": {
+            "type": "object",
+            "nullable": true
+          },
+          "codeExercise": {
+            "type": "object",
+            "nullable": true
+          },
+          "resourceUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "transcript": {
+            "type": "object",
+            "nullable": true
+          },
+          "subtitleUrl": {
+            "type": "object",
+            "nullable": true
+          },
+          "aiSummary": {
+            "type": "object",
+            "nullable": true
+          }
+        }
       }
     }
   }

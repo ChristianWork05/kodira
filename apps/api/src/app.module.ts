@@ -12,6 +12,7 @@ import { RedisModule } from './infra/redis/redis.module';
 import { parseRedisUrl } from './infra/redis/redis.utils';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { EducationModule } from './education/education.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { AuthModule } from './auth/auth.module';
     HealthModule,
     UsersModule,
     AuthModule,
+    EducationModule,
   ],
   controllers: [AppController],
   providers: [

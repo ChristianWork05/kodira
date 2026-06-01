@@ -44,6 +44,7 @@ describe('OpenAPI document (e2e)', () => {
     const paths = Object.keys(doc.paths ?? {});
     expect(paths.some((p) => p.startsWith('/auth'))).toBe(true);
     expect(paths.some((p) => p.startsWith('/users'))).toBe(true);
+    expect(paths.some((p) => p.startsWith('/courses'))).toBe(true);
   });
 });
 
