@@ -1,6 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import { ApiExceptionFilter } from './common/filters/api-exception.filter';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { HealthModule } from './health/health.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,11 +15,34 @@ async function bootstrap() {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('KODIRA API')
     .setVersion('1.0.0')
-    .addServer('/api/v1')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'bearer',
+    )
     .build();
 
-  const openapiDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  const openapiDocument = SwaggerModule.createDocument(app, swaggerConfig, {
+    deepScanRoutes: true,
+    include: [HealthModule, UsersModule, AuthModule],
+  });
   SwaggerModule.setup('api/v1/docs', app, openapiDocument);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        return ApiExceptionFilter.validationException(errors);
+      },
+    }),
+  );
+
+  app.useGlobalFilters(new ApiExceptionFilter());
 
   app.enableCors({
     origin: process.env.FRONTEND_URL ?? true,

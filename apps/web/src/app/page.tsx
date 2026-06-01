@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import type { HealthDependencyStatus } from '@kodira/types';
+import Link from 'next/link';
 import { useHealthQuery } from '@kodira/hooks';
 import {
   Badge,
@@ -61,6 +62,17 @@ export default function HomePage() {
           <p className="mt-1 text-sm text-muted-fg">
             Estado del backend (DB/Redis) según el contrato /api/v1/health.
           </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button asChild variant="secondary" size="sm">
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/register">Register</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/dashboard">Dashboard</Link>
+            </Button>
+          </div>
         </header>
 
         <Card>

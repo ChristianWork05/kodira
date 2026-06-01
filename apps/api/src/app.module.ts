@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as path from 'node:path';
 import { AppController } from './app.controller';
@@ -8,6 +10,8 @@ import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { RedisModule } from './infra/redis/redis.module';
 import { parseRedisUrl } from './infra/redis/redis.utils';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +20,15 @@ import { parseRedisUrl } from './infra/redis/redis.utils';
       envFilePath: [
         path.resolve(process.cwd(), '.env'),
         path.resolve(process.cwd(), '..', '..', '.env'),
+      ],
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'default',
+          ttl: 60_000,
+          limit: 120,
+        },
       ],
     }),
     MongooseModule.forRootAsync({
@@ -36,8 +49,16 @@ import { parseRedisUrl } from './infra/redis/redis.utils';
       },
     }),
     HealthModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
