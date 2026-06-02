@@ -911,6 +911,208 @@
           }
         ]
       }
+    },
+    "/api/v1/courses/{id}/lessons": {
+      "get": {
+        "operationId": "EducationController_getCourseLessons",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCourseLessonsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/courses/{id}/enroll": {
+      "post": {
+        "operationId": "EducationController_enrollCourse",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Courses"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/courses": {
+      "get": {
+        "operationId": "EducationMeController_myCourses",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListMyCoursesResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Me"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/lessons/{id}/progress": {
+      "post": {
+        "operationId": "LessonsController_progress",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonProgressDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "ok": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Lessons"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/lessons/{id}/complete": {
+      "post": {
+        "operationId": "LessonsController_complete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "ok": true,
+                    "progressPercentage": 100,
+                    "isCompleted": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Lessons"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
     }
   },
   "info": {
@@ -2242,6 +2444,235 @@
             "nullable": true
           }
         }
+      },
+      "GetCourseLessonsResponseDto": {
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SectionDto"
+            }
+          }
+        },
+        "required": [
+          "courseId",
+          "sections"
+        ]
+      },
+      "LessonProgressDto": {
+        "type": "object",
+        "properties": {
+          "watchPercentage": {
+            "type": "number",
+            "example": 25
+          },
+          "lastPositionSeconds": {
+            "type": "number",
+            "example": 90
+          },
+          "quizScore": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "watchPercentage",
+          "lastPositionSeconds"
+        ]
+      },
+      "EnrollmentLessonProgressDto": {
+        "type": "object",
+        "properties": {
+          "lessonId": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "watchPercentage": {
+            "type": "number",
+            "example": 0
+          },
+          "lastPositionSeconds": {
+            "type": "number",
+            "example": 0
+          },
+          "quizScore": {
+            "type": "number",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "lessonId",
+          "isCompleted",
+          "watchPercentage",
+          "lastPositionSeconds",
+          "quizScore",
+          "completedAt"
+        ]
+      },
+      "EnrollmentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "courseId": {
+            "type": "string"
+          },
+          "enrolledAt": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastActivity": {
+            "type": "string",
+            "nullable": true
+          },
+          "progressPercentage": {
+            "type": "number",
+            "example": 0
+          },
+          "isCompleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "amountPaid": {
+            "type": "number",
+            "example": 0
+          },
+          "paymentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "certificateId": {
+            "type": "string",
+            "nullable": true
+          },
+          "lessonProgress": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrollmentLessonProgressDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "studentId",
+          "courseId",
+          "enrolledAt",
+          "completedAt",
+          "lastActivity",
+          "progressPercentage",
+          "isCompleted",
+          "amountPaid",
+          "paymentId",
+          "certificateId",
+          "lessonProgress"
+        ]
+      },
+      "EnrollmentSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "enrolledAt": {
+            "type": "string"
+          },
+          "lastActivity": {
+            "type": "string",
+            "nullable": true
+          },
+          "progressPercentage": {
+            "type": "number",
+            "example": 0
+          },
+          "isCompleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "enrolledAt",
+          "lastActivity",
+          "progressPercentage",
+          "isCompleted",
+          "completedAt"
+        ]
+      },
+      "MyCourseItemDto": {
+        "type": "object",
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/CourseListItemDto"
+          },
+          "enrollment": {
+            "$ref": "#/components/schemas/EnrollmentSummaryDto"
+          },
+          "lastLessonId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "course",
+          "enrollment",
+          "lastLessonId"
+        ]
+      },
+      "ListMyCoursesResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyCourseItemDto"
+            }
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 0
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
       }
     }
   }

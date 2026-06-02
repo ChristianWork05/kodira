@@ -1,78 +1,97 @@
-# Reglas del proyecto KODIRA
+Reglas del proyecto KODIRA
 
-> Estas reglas las sigue CUALQUIER agente que trabaje en este repositorio: el SOLO Agent y los
-> agentes personalizados (tech-lead, backend, frontend, QA), en TODAS las interacciones. Cada
-> agente tiene además su propio prompt con su especialidad; esto es la base común que todos
-> respetan. El contexto completo del producto está en los archivos FASE_0..FASE_5.md.
+Estas reglas las sigue CUALQUIER agente que trabaje en este repositorio: el SOLO Agent y los
+agentes personalizados (tech-lead, backend, frontend, QA), en TODAS las interacciones. Cada
+agente tiene además su propio prompt con su especialidad; esto es la base común que todos
+respetan. El contexto completo del producto está en los archivos FASE_0..FASE_5.md.
 
-## Producto
+Producto
 KODIRA es una plataforma tech todo-en-uno: cursos + asesorías 1:1 + marketplace de servicios +
 comunidad + IA ("KODI"). Audiencia: desarrolladores hispanohablantes de España y LATAM.
+Estructura del monorepo (Turborepo + pnpm)
 
-## Estructura del monorepo (Turborepo + pnpm)
-- `apps/api` → Backend NestJS. Corre en el puerto 8000, con prefijo `/api/v1`.
-- `apps/web` → Frontend Next.js 14 (App Router). Corre en el puerto 3000.
-- `apps/mobile` → App Expo. NO crear hasta la Fase 5.
-- `packages/types` → Tipos TypeScript compartidos. ES EL CONTRATO. Lo importan `apps/api` Y `apps/web`.
-- `packages/api-client` → Cliente HTTP tipado (axios) que apunta a NEXT_PUBLIC_API_URL, con
-  interceptor de token de auth y refresh de 401.
-- `packages/hooks` → Hooks de datos con React Query (TanStack Query), uno por recurso.
-- `packages/ui` → Componentes compartidos (Tailwind + Radix + cva).
-- `docs/API_CONTRACT.md` → Contrato legible. Lo mantiene el backend; el frontend solo lo lee.
-- `docs/CONTRACT_REQUESTS.md` → El frontend pide aquí lo que falta; el backend lo resuelve.
+apps/api → Backend NestJS. Corre en el puerto 8000, con prefijo /api/v1.
+apps/web → Frontend Next.js 14 (App Router). Corre en el puerto 3000.
+apps/mobile → App Expo. NO crear hasta la Fase 5.
+packages/types → Tipos TypeScript compartidos. ES EL CONTRATO. Lo importan apps/api Y apps/web.
+packages/api-client → Cliente HTTP tipado (axios) que apunta a NEXT_PUBLIC_API_URL, con
+interceptor de token de auth y refresh de 401.
+packages/hooks → Hooks de datos con React Query (TanStack Query), uno por recurso.
+packages/ui → Componentes compartidos (Tailwind + Radix + cva).
+docs/API_CONTRACT.md → Contrato legible. Lo mantiene el backend; el frontend solo lo lee.
+docs/CONTRACT_REQUESTS.md → El frontend pide aquí lo que falta; el backend lo resuelve.
 
-## REGLA #1 — El contrato de API (la más importante)
-- `packages/types` es la única definición de las formas de datos. `apps/api` y `apps/web`
-  importan de ahí. Si un tipo cambia, cambia en un solo lugar.
-- El backend es DUEÑO del contrato: mantiene `packages/types`, `docs/API_CONTRACT.md` y el
-  Swagger (openapi.json) siempre sincronizados con el código real.
-- El frontend SOLO consume lo que existe en el contrato. NUNCA inventa endpoints ni formas de
-  datos. Si necesita algo que no existe, lo anota en `docs/CONTRACT_REQUESTS.md` y espera a que
-  el backend lo entregue.
-- Ningún cambio de backend puede romper el contrato sin actualizar el contrato y avisar.
+REGLA #1 — El contrato de API (la más importante)
 
-## Stack y servicios
-- Backend: NestJS + MongoDB Atlas (Mongoose) + Redis/Upstash + BullMQ.
-- Frontend: Next.js 14 + TypeScript estricto + Tailwind + React Query.
-- Servicios: Cloudflare R2/Stream (archivos y video), Stripe + Mercado Pago (pagos), OpenAI (IA),
-  Resend (emails), PostHog (analítica), Sentry (errores).
-- Despliegue: Vercel (`apps/web`) y Railway/Render (`apps/api`).
+packages/types es la única definición de las formas de datos. apps/api y apps/web
+importan de ahí. Si un tipo cambia, cambia en un solo lugar.
+El backend es DUEÑO del contrato: mantiene packages/types, docs/API_CONTRACT.md y el
+Swagger (openapi.json) siempre sincronizados con el código real.
+El frontend SOLO consume lo que existe en el contrato. NUNCA inventa endpoints ni formas de
+datos. Si necesita algo que no existe, lo anota en docs/CONTRACT_REQUESTS.md y espera a que
+el backend lo entregue.
+Ningún cambio de backend puede romper el contrato sin actualizar el contrato y avisar.
 
-## Convenciones de código y API
-- API REST: prefijo `/api/v1`. Health check en `/api/v1/health` (devuelve db y redis "up"/"down").
-- Métodos: GET leer, POST crear, PATCH modificar, DELETE borrar.
-- Enums: definidos una sola vez en `packages/types` y usados igual en todo el código.
-- Validación: TODA entrada externa al backend se valida (class-validator / Zod).
-- Errores: forma de error consistente en toda la API (código, mensaje, detalles). Nada de 500
-  sin manejar; cada fallo previsible se traduce en un error claro y tipado.
-- Multi-tenant: aislamiento estricto. Un tenant jamás ve datos de otro. Verificarlo siempre.
-- TypeScript estricto en todo el repo. `typecheck` y `lint` deben pasar antes de dar algo por hecho.
+Stack y servicios
 
-## Seguridad y secretos
-- Los secretos van en `.env` (NUNCA en el código, NUNCA a GitHub). `.env.example` sí se sube, con
-  las variables sin valores reales.
-- Ningún agente crea cuentas en servicios externos. Si hace falta una credencial nueva, se le
-  indica al dueño en una línea: qué variable poner en `.env` y de qué servicio sacarla.
-- Nunca ejecutar código de usuario en el servidor (eso va a Judge0). Rate limiting en endpoints
-  sensibles. Sanitizar entradas.
+Backend: NestJS + MongoDB Atlas (Mongoose) + Redis/Upstash + BullMQ.
+Frontend: Next.js 14 + TypeScript estricto + Tailwind + React Query.
+Servicios: Cloudflare R2/Stream (archivos y video), Stripe + Mercado Pago (pagos), OpenAI (IA),
+Resend (emails), PostHog (analítica), Sentry (errores).
+Despliegue: Vercel (apps/web) y Railway/Render (apps/api).
 
-## Diseño (marca KODIRA)
-- Fondo `#0B0B0F`, azul `#3B82F6`, violeta `#6366F1`. Modo oscuro por defecto.
-- Tipografías: Satoshi (títulos), Inter (texto).
-- Tono de voz: directo, concreto, técnico-amigable, sin clichés motivacionales.
-- En trabajo de frontend, usar los skills de diseño instalados (design-taste-frontend para
-  referencias, emil-design-eng para animaciones, Impeccable para /audit /critique /polish) y
-  evitar el "AI slop". Toda pantalla maneja 4 estados: cargando, vacío, error y éxito.
+Convenciones de código y API
 
-## Definition of Done (para cualquier entrega)
-- `typecheck` y `lint` pasan sin errores.
-- Las pruebas de lo nuevo o modificado pasan (incluye casos de error y de permisos).
-- Si cambió la API: `docs/API_CONTRACT.md`, openapi.json y `packages/types` actualizados.
-- Si se añadieron variables: `.env.example` actualizado y se avisa al dueño qué credenciales
-  debe proveer.
-- En frontend: pasó /audit, /critique y /polish, y un recorrido de usabilidad como usuario final.
-- Nada se da por "terminado" sin verificar que funciona de punta a punta.
+API REST: prefijo /api/v1. Health check en /api/v1/health (devuelve db y redis "up"/"down").
+Métodos: GET leer, POST crear, PATCH modificar, DELETE borrar.
+Enums: definidos una sola vez en packages/types y usados igual en todo el código.
+Validación: TODA entrada externa al backend se valida (class-validator / Zod).
+Errores: forma de error consistente en toda la API (código, mensaje, detalles). Nada de 500
+sin manejar; cada fallo previsible se traduce en un error claro y tipado.
+Multi-tenant: aislamiento estricto. Un tenant jamás ve datos de otro. Verificarlo siempre.
+TypeScript estricto en todo el repo. typecheck y lint deben pasar antes de dar algo por hecho.
 
-## Idioma y comunicación
-- Las explicaciones al dueño van en español, breves y sin tecnicismos innecesarios.
-- El código, los nombres de variables y los identificadores, en inglés.
+Seguridad y secretos
+
+Los secretos van en .env (NUNCA en el código, NUNCA a GitHub). .env.example sí se sube, con
+las variables sin valores reales.
+Ningún agente crea cuentas en servicios externos. Si hace falta una credencial nueva, se le
+indica al dueño en una línea: qué variable poner en .env y de qué servicio sacarla.
+Nunca ejecutar código de usuario en el servidor (eso va a Judge0). Rate limiting en endpoints
+sensibles. Sanitizar entradas.
+
+Diseño (marca KODIRA)
+
+Fondo #0B0B0F, azul #3B82F6, violeta #6366F1. Modo oscuro por defecto.
+Tipografías: Satoshi (títulos), Inter (texto).
+Tono de voz: directo, concreto, técnico-amigable, sin clichés motivacionales.
+
+REGLA DE DISEÑO FRONTEND (OBLIGATORIA)
+Para CUALQUIER trabajo de frontend (páginas, componentes, estilos, artifacts, landing), ANTES de
+escribir código el agente DEBE leer y aplicar estas tres skills instaladas en el repo:
+
+design-taste-frontend (Taste): genera referencias de diseño reales antes de construir. Nunca
+maquetes sin antes proponer/consultar referencias.
+emil-design-eng (Emil Kowalski): animaciones e interacciones. Transiciones <300ms, easing
+personalizado, microinteracciones cuidadas, respeta reduced-motion.
+Impeccable (pbakaus): evita el look genérico de IA. Antes de entregar, pasa /audit, /critique y
+/polish (si en este runtime no existen como comandos, aplica sus checklists manualmente). Respeta
+el contexto de marca de .impeccable.md.
+
+Esto NO es opcional: ninguna entrega de frontend se considera terminada sin haber aplicado las tres.
+Además, toda pantalla maneja 4 estados: cargando, vacío, error y éxito. Mantén siempre la marca
+KODIRA (tokens de la sección anterior).
+Definition of Done (para cualquier entrega)
+
+typecheck y lint pasan sin errores.
+Las pruebas de lo nuevo o modificado pasan (incluye casos de error y de permisos).
+Si cambió la API: docs/API_CONTRACT.md, openapi.json y packages/types actualizados.
+Si se añadieron variables: .env.example actualizado y se avisa al dueño qué credenciales
+debe proveer.
+En frontend: pasó /audit, /critique y /polish, y un recorrido de usabilidad como usuario final.
+Nada se da por "terminado" sin verificar que funciona de punta a punta.
+
+Idioma y comunicación
+
+Las explicaciones al dueño van en español, breves y sin tecnicismos innecesarios.
+El código, los nombres de variables y los identificadores, en inglés.

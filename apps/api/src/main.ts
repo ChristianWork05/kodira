@@ -3,10 +3,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { ApiExceptionFilter } from './common/filters/api-exception.filter';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { HealthModule } from './health/health.module';
-import { EducationModule } from './education/education.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,7 +24,6 @@ async function bootstrap() {
 
   const openapiDocument = SwaggerModule.createDocument(app, swaggerConfig, {
     deepScanRoutes: true,
-    include: [HealthModule, UsersModule, AuthModule, EducationModule],
   });
   SwaggerModule.setup('api/v1/docs', app, openapiDocument);
 

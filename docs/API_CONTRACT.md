@@ -335,3 +335,49 @@ Todos los errores siguen un shape consistente:
 
 - **Auth**: pública
 - **Respuesta 200**: `Category[]`
+
+## Education — Enrollments & Progress
+
+### POST `/api/v1/courses/:id/enroll`
+
+- **Auth**: Bearer (alumno)
+- **Regla**
+  - Si el curso es gratis → inscribe
+  - Si el curso es de pago → rechaza y pide pasar por checkout
+- **Respuesta 201**: `Enrollment`
+
+### GET `/api/v1/me/courses`
+
+- **Auth**: Bearer
+- **Respuesta 200**: lista paginada de mis cursos con progreso y `lastLessonId`
+
+### GET `/api/v1/courses/:id/lessons`
+
+- **Auth**: Bearer
+- **Regla**
+  - Si estoy inscrito → devuelve el contenido completo (sin `solutionCode`)
+  - Si no estoy inscrito → solo lecciones `isFreePreview` traen `content/videoId`; el resto viene null
+
+### POST `/api/v1/lessons/:id/progress`
+
+- **Auth**: Bearer
+- **Body**
+
+```json
+{ "watchPercentage": 25, "lastPositionSeconds": 90 }
+```
+
+- **Respuesta 200**
+
+```json
+{ "ok": true }
+```
+
+### POST `/api/v1/lessons/:id/complete`
+
+- **Auth**: Bearer
+- **Respuesta 200**
+
+```json
+{ "ok": true, "progressPercentage": 100, "isCompleted": true }
+```

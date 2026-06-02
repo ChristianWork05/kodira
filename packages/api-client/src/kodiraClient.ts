@@ -2,9 +2,16 @@ import axios, { type AxiosInstance } from 'axios';
 import type {
   AuthResponse,
   AuthTokens,
+  Category,
+  Course,
+  EnrollCourseResponse,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
   HealthResponse,
+  ListCoursesQuery,
+  ListCoursesResponse,
+  ListMyCoursesQuery,
+  ListMyCoursesResponse,
   LoginRequest,
   LogoutResponse,
   RefreshRequest,
@@ -44,6 +51,13 @@ export interface KodiraApiClient {
     getMe: () => Promise<UserMe>;
     updateMe: (body: UpdateMyProfileRequest) => Promise<UserMe>;
     getPublicProfile: (username: string) => Promise<PublicUserProfile>;
+  };
+  education: {
+    listCourses: (query?: ListCoursesQuery) => Promise<ListCoursesResponse>;
+    getCourseBySlug: (slug: string) => Promise<Course>;
+    listCategories: () => Promise<Category[]>;
+    enrollCourse: (courseId: string) => Promise<EnrollCourseResponse>;
+    listMyCourses: (query?: ListMyCoursesQuery) => Promise<ListMyCoursesResponse>;
   };
 }
 
@@ -144,6 +158,32 @@ export function createKodiraApiClient(
       },
       async getPublicProfile(username) {
         const { data } = await http.get<PublicUserProfile>(`/api/v1/users/${username}`);
+        return data;
+      },
+    },
+    education: {
+      async listCourses(query) {
+        const { data } = await http.get<ListCoursesResponse>('/api/v1/courses', {
+          params: query,
+        });
+        return data;
+      },
+      async getCourseBySlug(slug) {
+        const { data } = await http.get<Course>(`/api/v1/courses/${slug}`);
+        return data;
+      },
+      async listCategories() {
+        const { data } = await http.get<Category[]>('/api/v1/courses/categories');
+        return data;
+      },
+      async enrollCourse(courseId) {
+        const { data } = await http.post<EnrollCourseResponse>(`/api/v1/courses/${courseId}/enroll`);
+        return data;
+      },
+      async listMyCourses(query) {
+        const { data } = await http.get<ListMyCoursesResponse>('/api/v1/me/courses', {
+          params: query,
+        });
         return data;
       },
     },

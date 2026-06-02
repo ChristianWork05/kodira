@@ -23,6 +23,8 @@ import type {
   CreateCourseResponse,
   DeleteLessonResponse,
   DeleteSectionResponse,
+  EnrollCourseResponse,
+  GetCourseLessonsResponse,
   PublishCourseResponse,
   UpdateCourseResponse,
   UpdateLessonResponse,
@@ -44,11 +46,17 @@ import { AddSectionDto, UpdateSectionDto } from './dto/section.dto';
 import { AddLessonDto, UpdateLessonDto } from './dto/lesson.dto';
 import { CourseDto } from './dto/course.dto';
 import { CategoryDto } from './dto/category.dto';
+import { EnrollmentService } from './enrollment.service';
+import { EnrollmentDto } from './dto/enrollment.dto';
+import { GetCourseLessonsResponseDto } from './dto/course-lessons-response.dto';
 
 @ApiTags('Courses')
 @Controller('courses')
 export class EducationController {
-  constructor(private readonly education: EducationService) {}
+  constructor(
+    private readonly education: EducationService,
+    private readonly enrollments: EnrollmentService,
+  ) {}
 
   @Get()
   @ApiOkResponse({ type: ListCoursesResponseDto })
@@ -60,6 +68,31 @@ export class EducationController {
   @ApiOkResponse({ type: [CategoryDto] })
   async listCategories(): Promise<CategoryDto[]> {
     return this.education.listCategories();
+  }
+
+  @Get(':id/lessons')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('bearer')
+  @ApiParam({ name: 'id' })
+  @ApiOkResponse({ type: GetCourseLessonsResponseDto })
+  async getCourseLessons(
+    @Param('id') courseId: string,
+    @CurrentUser() user: UserDocument,
+  ): Promise<GetCourseLessonsResponse> {
+    return this.enrollments.getCourseLessons(user._id.toString(), courseId);
+  }
+
+  @Post(':id/enroll')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('bearer')
+  @ApiParam({ name: 'id' })
+  @HttpCode(201)
+  @ApiCreatedResponse({ type: EnrollmentDto })
+  async enrollCourse(
+    @Param('id') courseId: string,
+    @CurrentUser() user: UserDocument,
+  ): Promise<EnrollCourseResponse> {
+    return this.enrollments.enrollCourse(user._id.toString(), courseId);
   }
 
   @Get(':slug')

@@ -219,3 +219,76 @@ export type DeleteLessonResponse = { ok: true };
 
 export type PublishCourseResponse = Course;
 
+export interface EnrollmentLessonProgress {
+  lessonId: string;
+  isCompleted: boolean;
+  watchPercentage: number;
+  lastPositionSeconds: number;
+  quizScore?: number | null;
+  completedAt?: string | null;
+}
+
+export interface Enrollment {
+  id: string;
+  studentId: string;
+  courseId: string;
+  enrolledAt: string;
+  completedAt?: string | null;
+  lastActivity?: string | null;
+  progressPercentage: number;
+  isCompleted: boolean;
+  amountPaid: number;
+  paymentId?: string | null;
+  certificateId?: string | null;
+  lessonProgress: EnrollmentLessonProgress[];
+}
+
+export type EnrollCourseResponse = Enrollment;
+
+export interface MyCourseEnrollment {
+  id: string;
+  enrolledAt: string;
+  lastActivity: string | null;
+  progressPercentage: number;
+  isCompleted: boolean;
+  completedAt: string | null;
+}
+
+export interface MyCourseItem {
+  course: CourseListItem;
+  enrollment: MyCourseEnrollment;
+  lastLessonId: string | null;
+}
+
+export interface ListMyCoursesQuery {
+  page?: number;
+  limit?: number;
+}
+
+export interface ListMyCoursesResponse {
+  items: MyCourseItem[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface GetCourseLessonsResponse {
+  courseId: string;
+  sections: Section[];
+}
+
+export interface LessonProgressRequest {
+  watchPercentage: number;
+  lastPositionSeconds: number;
+  quizScore?: number | null;
+}
+
+export type LessonProgressResponse = { ok: true };
+
+export type LessonCompleteResponse = {
+  ok: true;
+  progressPercentage: number;
+  isCompleted: boolean;
+};
+
