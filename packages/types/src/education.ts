@@ -46,12 +46,19 @@ export interface LessonCodeExercise {
   solutionCode?: string | null;
 }
 
+export interface LessonProgressSummary {
+  isCompleted: boolean;
+  watchPercentage: number;
+  lastPositionSeconds: number;
+}
+
 export interface Lesson {
   id: string;
   title: string;
   order: number;
   type: LessonType;
   videoId?: string | null;
+  videoUrl?: string | null;
   videoDuration?: number | null;
   content?: string | null;
   isFreePreview: boolean;
@@ -62,6 +69,7 @@ export interface Lesson {
   transcript?: string | null;
   subtitleUrl?: string | null;
   aiSummary?: string | null;
+  lessonProgress?: LessonProgressSummary | null;
 }
 
 export interface Section {
@@ -197,6 +205,7 @@ export interface AddLessonRequest {
   order?: number;
   type: LessonType;
   videoId?: string | null;
+  videoUrl?: string | null;
   videoDuration?: number | null;
   content?: string | null;
   isFreePreview?: boolean;
@@ -267,6 +276,45 @@ export interface ListMyCoursesQuery {
 
 export interface ListMyCoursesResponse {
   items: MyCourseItem[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface InstructorCourseLessonItem {
+  id: string;
+  title: string;
+  order: number;
+  type: LessonType;
+  isFreePreview: boolean;
+}
+
+export interface InstructorCourseSectionItem {
+  id: string;
+  title: string;
+  order: number;
+  lessons: InstructorCourseLessonItem[];
+}
+
+export interface InstructorCourseItem {
+  id: string;
+  title: string;
+  slug: string;
+  state: CourseState;
+  sections: InstructorCourseSectionItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ListInstructorCoursesQuery {
+  page?: number;
+  limit?: number;
+  state?: CourseState;
+}
+
+export interface ListInstructorCoursesResponse {
+  items: InstructorCourseItem[];
   page: number;
   limit: number;
   total: number;

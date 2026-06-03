@@ -16,6 +16,9 @@ export class Category {
 
   @Prop({ type: Number, default: 0 })
   order!: number;
+
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

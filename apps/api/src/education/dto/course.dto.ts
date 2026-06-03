@@ -8,6 +8,7 @@ import type {
   CourseState,
   Lesson,
   LessonCodeExercise,
+  LessonProgressSummary,
   LessonQuiz,
   LessonType,
   Section,
@@ -75,6 +76,17 @@ export class LessonCodeExerciseDto implements LessonCodeExercise {
   solutionCode?: string | null;
 }
 
+export class LessonProgressSummaryDto implements LessonProgressSummary {
+  @ApiProperty({ example: false })
+  isCompleted!: boolean;
+
+  @ApiProperty({ example: 25 })
+  watchPercentage!: number;
+
+  @ApiProperty({ example: 90 })
+  lastPositionSeconds!: number;
+}
+
 export class LessonDto implements Lesson {
   @ApiProperty()
   id!: string;
@@ -90,6 +102,9 @@ export class LessonDto implements Lesson {
 
   @ApiProperty({ nullable: true })
   videoId?: string | null;
+
+  @ApiProperty({ nullable: true })
+  videoUrl?: string | null;
 
   @ApiProperty({ nullable: true, example: 120 })
   videoDuration?: number | null;
@@ -120,6 +135,9 @@ export class LessonDto implements Lesson {
 
   @ApiProperty({ nullable: true })
   aiSummary?: string | null;
+
+  @ApiProperty({ nullable: true, type: LessonProgressSummaryDto })
+  lessonProgress?: LessonProgressSummaryDto | null;
 }
 
 export class SectionDto implements Section {

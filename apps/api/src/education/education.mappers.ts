@@ -34,6 +34,7 @@ function toLesson(lesson: Lesson): LessonType {
     order: obj.order ?? 0,
     type: obj.type,
     videoId: obj.videoId ?? null,
+    videoUrl: obj.videoUrl ?? null,
     videoDuration: obj.videoDuration ?? null,
     content: obj.content ?? null,
     isFreePreview: obj.isFreePreview ?? false,

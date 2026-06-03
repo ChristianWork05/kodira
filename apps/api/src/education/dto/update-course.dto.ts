@@ -7,6 +7,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   MaxLength,
   Min,
   ValidateIf,
@@ -71,7 +72,8 @@ export class UpdateCourseDto implements UpdateCourseRequest {
 
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()
-  @IsString()
+  @Transform(({ value }) => (value === '' ? null : typeof value === 'string' ? value.trim() : value))
+  @IsUrl({ require_protocol: true, require_tld: false })
   thumbnailUrl?: string | null;
 
   @ApiPropertyOptional({ nullable: true })

@@ -6,6 +6,8 @@ import type {
   CourseInstructor,
   CourseLevel,
   CourseState,
+  ListInstructorCoursesQuery,
+  ListInstructorCoursesResponse,
   LessonType,
   ListCoursesQuery,
   ListCoursesResponse,
@@ -101,6 +103,55 @@ export class EducationService {
         category,
       });
     });
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    return { items, page, limit, total, totalPages };
+  }
+
+  async listInstructorCourses(
+    instructorId: string,
+    query: ListInstructorCoursesQuery,
+  ): Promise<ListInstructorCoursesResponse> {
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? Math.min(query.limit, 50) : 20;
+    const skip = (page - 1) * limit;
+
+    const filter: FilterQuery<Course> = {
+      instructor: new Types.ObjectId(instructorId),
+    };
+    if (query.state) filter.state = query.state as CourseState;
+
+    const [total, docs] = await Promise.all([
+      this.courseModel.countDocuments(filter).exec(),
+      this.courseModel
+        .find(filter)
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select('title slug state sections createdAt updatedAt')
+        .exec(),
+    ]);
+
+    const items = docs.map((doc) => ({
+      id: doc._id.toString(),
+      title: doc.title,
+      slug: doc.slug,
+      state: doc.state,
+      sections: (doc.sections ?? []).map((s: any) => ({
+        id: s._id.toString(),
+        title: s.title,
+        order: s.order ?? 0,
+        lessons: ((s.lessons ?? []) as Lesson[]).map((l: any) => ({
+          id: l._id.toString(),
+          title: l.title,
+          order: l.order ?? 0,
+          type: l.type as LessonType,
+          isFreePreview: l.isFreePreview ?? false,
+        })),
+      })),
+      createdAt: doc.createdAt?.toISOString?.() ?? new Date().toISOString(),
+      updatedAt: doc.updatedAt?.toISOString?.() ?? new Date().toISOString(),
+    }));
 
     const totalPages = Math.max(1, Math.ceil(total / limit));
     return { items, page, limit, total, totalPages };

@@ -13,6 +13,7 @@ import { parseRedisUrl } from './infra/redis/redis.utils';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { EducationModule } from './education/education.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { EducationModule } from './education/education.module';
     UsersModule,
     AuthModule,
     EducationModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [

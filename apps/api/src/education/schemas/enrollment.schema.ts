@@ -64,6 +64,9 @@ export class Enrollment {
 
   @Prop({ type: [LessonProgressSchema], default: [] })
   lessonProgress!: LessonProgress[];
+
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export const EnrollmentSchema = SchemaFactory.createForClass(Enrollment);

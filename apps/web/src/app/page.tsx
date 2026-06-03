@@ -4,7 +4,26 @@ import * as React from 'react';
 import Link from 'next/link';
 import type { CourseListItem } from '@kodira/types';
 import { getKodiraApiClient, useCoursesQuery } from '@kodira/hooks';
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Separator, Skeleton } from '@kodira/ui';
+import {
+  AnimatedNumber,
+  Atmosphere,
+  Aurora,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  HoverLift,
+  Input,
+  Logo,
+  NoiseOverlay,
+  Reveal,
+  RevealItem,
+  Separator,
+  Skeleton,
+} from '@kodira/ui';
 import { getApiStatus } from '../lib/apiError';
 
 type SessionState = 'checking' | 'guest' | 'authed';
@@ -16,12 +35,6 @@ type FormState =
   | { status: 'error'; message: string };
 
 type Tint = 'primary' | 'violet';
-
-const NOISE_DATA_URL = (() => {
-  const svg =
-    "<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.22'/></svg>";
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
-})();
 
 function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(' ');
@@ -41,39 +54,6 @@ function usePrefersReducedMotion() {
   return reduce;
 }
 
-function useInViewOnce<T extends HTMLElement>(options?: IntersectionObserverInit & { once?: boolean }) {
-  const ref = React.useRef<T | null>(null);
-  const [inView, setInView] = React.useState(false);
-
-  React.useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (inView && options?.once !== false) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (!entry) return;
-        if (entry.isIntersecting) {
-          setInView(true);
-          if (options?.once !== false) observer.disconnect();
-        } else if (options?.once === false) {
-          setInView(false);
-        }
-      },
-      {
-        root: options?.root ?? null,
-        rootMargin: options?.rootMargin ?? '0px 0px -12% 0px',
-        threshold: options?.threshold ?? 0.25,
-      },
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [inView, options?.once, options?.root, options?.rootMargin, options?.threshold]);
-
-  return { ref, inView } as const;
-}
 
 type IconProps = Omit<React.SVGProps<SVGSVGElement>, 'children'> & {
   strokeWidth?: number;
@@ -237,40 +217,6 @@ function SectionHeader({
   );
 }
 
-function Reveal({
-  children,
-  className,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const reduce = usePrefersReducedMotion();
-  const { ref, inView } = useInViewOnce<HTMLDivElement>({
-    once: true,
-    rootMargin: '0px 0px -18% 0px',
-    threshold: 0.18,
-  });
-
-  const style = React.useMemo(() => {
-    if (reduce) return undefined;
-    const ms = Math.round(delay * 1000);
-    return { ['--reveal-delay' as any]: `${ms}ms` } as React.CSSProperties;
-  }, [delay, reduce]);
-
-  return (
-    <div
-      ref={ref}
-      className={cx(!reduce && 'reveal', className)}
-      data-inview={reduce ? undefined : inView ? 'true' : 'false'}
-      style={style}
-    >
-      {children}
-    </div>
-  );
-}
-
 function GradientBorder({
   tint,
   className,
@@ -292,28 +238,6 @@ function GradientBorder({
   );
 }
 
-function NoiseOverlay() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none fixed inset-0 z-50 opacity-[0.08] mix-blend-overlay motion-reduce:opacity-[0.05]"
-      style={{ backgroundImage: NOISE_DATA_URL, backgroundSize: '160px 160px' }}
-    />
-  );
-}
-
-function Aurora() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -inset-24 opacity-90">
-        <div className="aurora-blob aurora-blob-1 absolute left-[-18%] top-[-10%] h-[520px] w-[520px] rounded-full bg-primary/18 blur-[70px]" />
-        <div className="aurora-blob aurora-blob-2 absolute right-[-10%] top-[6%] h-[440px] w-[440px] rounded-full bg-violet/18 blur-[70px]" />
-        <div className="aurora-blob aurora-blob-3 absolute left-[18%] top-[58%] h-[560px] w-[560px] rounded-full bg-primary/10 blur-[80px]" />
-      </div>
-      <div className="absolute inset-0 [background:radial-gradient(90%_70%_at_50%_0%,rgba(99,102,241,0.10),transparent_62%)]" />
-    </div>
-  );
-}
 
 function Spotlight() {
   const reduce = usePrefersReducedMotion();
@@ -385,7 +309,7 @@ function ScrollAwareNav({
           className="flex items-center gap-2 rounded-lg px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           aria-label="KODIRA"
         >
-          <span className="font-display text-lg text-fg">KODIRA</span>
+          <Logo markSize={28} className="text-fg" />
           <Badge variant="neutral">Estudio</Badge>
         </Link>
 
@@ -411,7 +335,7 @@ function ScrollAwareNav({
             </Button>
           ) : (
             <Button asChild variant="ghost" size="sm">
-              <Link href="/login">Login</Link>
+              <Link href="/login?next=%2Fdashboard">Dashboard</Link>
             </Button>
           )}
           <Button asChild variant="primary" size="sm" className="relative overflow-hidden">
@@ -476,106 +400,6 @@ function TechMarquee() {
   );
 }
 
-function TiltCard({
-  children,
-  className,
-  tint,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  tint: Tint;
-}) {
-  const reduce = usePrefersReducedMotion();
-  const ref = React.useRef<HTMLDivElement | null>(null);
-  const active = React.useRef(false);
-  const target = React.useRef({ rx: 0, ry: 0, glow: 0.15 });
-  const current = React.useRef({ rx: 0, ry: 0, glow: 0.15 });
-  const raf = React.useRef<number | null>(null);
-
-  const stopLoop = React.useCallback(() => {
-    if (raf.current) window.cancelAnimationFrame(raf.current);
-    raf.current = null;
-  }, []);
-
-  const startLoop = React.useCallback(() => {
-    if (raf.current) return;
-    const loop = () => {
-      const el = ref.current;
-      if (!el) {
-        stopLoop();
-        return;
-      }
-
-      const t = target.current;
-      const c = current.current;
-      const nx = c.rx + (t.rx - c.rx) * 0.16;
-      const ny = c.ry + (t.ry - c.ry) * 0.16;
-      const ng = c.glow + (t.glow - c.glow) * 0.14;
-      current.current = { rx: nx, ry: ny, glow: ng };
-
-      el.style.transform = `perspective(900px) rotateX(${nx}deg) rotateY(${ny}deg) translateZ(0)`;
-      el.style.setProperty('--tilt-glow', `${ng}`);
-
-      const done =
-        !active.current &&
-        Math.abs(t.rx - nx) < 0.05 &&
-        Math.abs(t.ry - ny) < 0.05 &&
-        Math.abs(t.glow - ng) < 0.01;
-
-      if (done) {
-        stopLoop();
-        return;
-      }
-
-      raf.current = window.requestAnimationFrame(loop);
-    };
-
-    raf.current = window.requestAnimationFrame(loop);
-  }, [stopLoop]);
-
-  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (reduce) return;
-    if (e.pointerType !== 'mouse') return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width;
-    const py = (e.clientY - rect.top) / rect.height;
-    const tiltX = (0.5 - py) * 9;
-    const tiltY = (px - 0.5) * 10;
-    active.current = true;
-    target.current = { rx: tiltX, ry: tiltY, glow: 0.26 };
-    startLoop();
-  };
-
-  const onLeave = () => {
-    active.current = false;
-    target.current = { rx: 0, ry: 0, glow: 0.15 };
-    startLoop();
-  };
-
-  const ring =
-    tint === 'primary'
-      ? '[background:radial-gradient(80%_70%_at_20%_10%,rgba(59,130,246,0.22),transparent_62%)]'
-      : '[background:radial-gradient(80%_70%_at_20%_10%,rgba(99,102,241,0.22),transparent_62%)]';
-
-  return (
-    <div
-      ref={ref}
-      onPointerMove={onMove}
-      onPointerLeave={onLeave}
-      className={cx('tilt-card group relative rounded-2xl', className)}
-    >
-      <div
-        aria-hidden
-        className={cx(
-          'pointer-events-none absolute inset-0 rounded-2xl opacity-100',
-          ring,
-        )}
-        style={{ opacity: 'var(--tilt-glow, 0.15)' }}
-      />
-      {children}
-    </div>
-  );
-}
 
 function ServiceCard({
   icon,
@@ -593,45 +417,40 @@ function ServiceCard({
   className?: string;
 }) {
   return (
-    <TiltCard tint={tint} className={className}>
-      <GradientBorder tint={tint}>
-        <Card
-          className={cx(
-            'relative overflow-hidden rounded-2xl bg-card/45 backdrop-blur-xl supports-[backdrop-filter]:bg-card/35',
-            'transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
-            'group-hover:-translate-y-0.5',
-          )}
-        >
-          <div aria-hidden className="pointer-events-none absolute inset-0 opacity-70 [background:radial-gradient(120%_80%_at_0%_0%,rgba(255,255,255,0.06),transparent_60%)]" />
-          <CardHeader className="items-start">
-            <div className="min-w-0">
-              <div className="flex items-center gap-3">
-                <div
-                  aria-hidden
-                  className="grid h-10 w-10 place-items-center rounded-xl border border-border/60 bg-bg/35 text-fg transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-rotate-2 group-hover:scale-[1.04] motion-reduce:transition-none"
-                >
-                  {icon}
-                </div>
-                <CardTitle className="text-base">{title}</CardTitle>
+    <GradientBorder tint={tint} className={className}>
+      <Card
+        variant="tilt"
+        className="relative overflow-hidden rounded-2xl bg-card/45 backdrop-blur-xl supports-[backdrop-filter]:bg-card/35"
+      >
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-70 [background:radial-gradient(120%_80%_at_0%_0%,rgba(255,255,255,0.06),transparent_60%)]" />
+        <CardHeader className="items-start">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <div
+                aria-hidden
+                className="grid h-10 w-10 place-items-center rounded-xl border border-border/60 bg-bg/35 text-fg transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-rotate-2 group-hover:scale-[1.04] motion-reduce:transition-none"
+              >
+                {icon}
               </div>
-              <CardDescription className="mt-2">{description}</CardDescription>
+              <CardTitle className="text-base">{title}</CardTitle>
             </div>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm text-muted-fg">
-              {bullets.map((item) => (
-                <li key={item} className="flex items-start gap-2">
-                  <span aria-hidden className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border/60 bg-muted/35">
-                    <IconCheck className="h-3.5 w-3.5 text-fg/90" strokeWidth={2} />
-                  </span>
-                  <span className="pt-0.5">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </GradientBorder>
-    </TiltCard>
+            <CardDescription className="mt-2">{description}</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2 text-sm text-muted-fg">
+            {bullets.map((item) => (
+              <li key={item} className="flex items-start gap-2">
+                <span aria-hidden className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border/60 bg-muted/35">
+                  <IconCheck className="h-3.5 w-3.5 text-fg/90" strokeWidth={2} />
+                </span>
+                <span className="pt-0.5">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+    </GradientBorder>
   );
 }
 
@@ -661,27 +480,29 @@ function ProjectTile({
         : 'col-span-12 md:col-span-4';
 
   return (
-    <Reveal className={span}>
+    <RevealItem className={span}>
       <GradientBorder tint={tint}>
-        <Card className="group relative overflow-hidden rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35">
-          <div aria-hidden className={cx('pointer-events-none absolute inset-0 opacity-100', hue)} />
-          <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100 motion-reduce:transition-none [background:radial-gradient(60%_60%_at_50%_50%,rgba(255,255,255,0.08),transparent_62%)]" />
-          <div className="relative px-5 pb-5 pt-5">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-fg">{title}</p>
-              <Badge variant="neutral">Ejemplo</Badge>
+        <HoverLift>
+          <Card className="group relative overflow-hidden rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35 hover:translate-y-0 hover:scale-100">
+            <div aria-hidden className={cx('pointer-events-none absolute inset-0 opacity-100', hue)} />
+            <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100 motion-reduce:transition-none [background:radial-gradient(60%_60%_at_50%_50%,rgba(255,255,255,0.08),transparent_62%)]" />
+            <div className="relative px-5 pb-5 pt-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-medium text-fg">{title}</p>
+                <Badge variant="neutral">Ejemplo</Badge>
+              </div>
+              <p className="mt-2 text-sm text-muted-fg">{subtitle}</p>
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <p className="text-xs text-muted-fg">
+                  Servicio: <span className="text-fg">{service}</span>
+                </p>
+                <span className="text-xs text-muted-fg">Caso (placeholder)</span>
+              </div>
             </div>
-            <p className="mt-2 text-sm text-muted-fg">{subtitle}</p>
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <p className="text-xs text-muted-fg">
-                Servicio: <span className="text-fg">{service}</span>
-              </p>
-              <span className="text-xs text-muted-fg">Caso (placeholder)</span>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </HoverLift>
       </GradientBorder>
-    </Reveal>
+    </RevealItem>
   );
 }
 
@@ -694,44 +515,10 @@ function Metric({
   value: number;
   suffix?: string;
 }) {
-  const reduce = usePrefersReducedMotion();
-  const { ref: wrapRef, inView } = useInViewOnce<HTMLDivElement>({
-    once: true,
-    rootMargin: '0px 0px -12% 0px',
-    threshold: 0.6,
-  });
-  const valueRef = React.useRef<HTMLSpanElement | null>(null);
-
-  React.useEffect(() => {
-    if (!inView) return;
-    const el = valueRef.current;
-    if (!el) return;
-
-    if (reduce) {
-      el.textContent = `${value}${suffix ?? ''}`;
-      return;
-    }
-
-    const start = performance.now();
-    const durationMs = 900;
-    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-    let raf = 0;
-
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / durationMs);
-      const eased = easeOut(t);
-      el.textContent = `${Math.round(eased * value)}${suffix ?? ''}`;
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, reduce, suffix, value]);
-
   return (
-    <div ref={wrapRef} className="rounded-2xl border border-border/60 bg-card/35 px-5 py-5 backdrop-blur">
+    <div className="rounded-2xl border border-border/60 bg-card/35 px-5 py-5 backdrop-blur">
       <div className="font-display text-3xl text-fg">
-        <span ref={valueRef}>0{suffix ?? ''}</span>
+        <AnimatedNumber value={value} suffix={suffix} durationMs={1350} />
       </div>
       <p className="mt-2 text-sm text-muted-fg">{label}</p>
     </div>
@@ -748,52 +535,54 @@ function CourseCard({ course }: { course: CourseListItem }) {
       href={`/courses/${course.slug}`}
       className={cx(
         'group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
-        'transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]',
-        'hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:transform-none',
+        'transition-[opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]',
+        'motion-reduce:transition-none',
       )}
     >
       <GradientBorder tint="primary">
-        <Card className="h-full rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35">
-          <div className="relative overflow-hidden rounded-t-2xl border-b border-border/60 bg-card/30">
-            <div
-              aria-hidden
-              className="absolute inset-0 opacity-95 [background:radial-gradient(80%_70%_at_15%_15%,rgba(59,130,246,0.26),transparent_55%),radial-gradient(70%_60%_at_85%_0%,rgba(99,102,241,0.22),transparent_60%)]"
-            />
-            <div className="relative flex items-center justify-between gap-3 px-4 py-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-xl border border-border/60 bg-bg/35">
-                  <span className="font-display text-base text-fg">{courseInitial || 'K'}</span>
+        <HoverLift>
+          <Card className="h-full rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35 hover:translate-y-0 hover:scale-100">
+            <div className="relative overflow-hidden rounded-t-2xl border-b border-border/60 bg-card/30">
+              <div
+                aria-hidden
+                className="absolute inset-0 opacity-95 [background:radial-gradient(80%_70%_at_15%_15%,rgba(59,130,246,0.26),transparent_55%),radial-gradient(70%_60%_at_85%_0%,rgba(99,102,241,0.22),transparent_60%)]"
+              />
+              <div className="relative flex items-center justify-between gap-3 px-4 py-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl border border-border/60 bg-bg/35">
+                    <span className="font-display text-base text-fg">{courseInitial || 'K'}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-medium text-fg/90">{categoryLabel}</p>
+                    <p className="truncate text-[11px] text-muted-fg">{instructorName}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="truncate text-xs font-medium text-fg/90">{categoryLabel}</p>
-                  <p className="truncate text-[11px] text-muted-fg">{instructorName}</p>
-                </div>
+                <Badge variant={course.isFree ? 'ok' : 'neutral'}>{course.isFree ? 'Gratis' : 'Pro'}</Badge>
               </div>
-              <Badge variant={course.isFree ? 'ok' : 'neutral'}>{course.isFree ? 'Gratis' : 'Pro'}</Badge>
             </div>
-          </div>
 
-          <CardHeader className="items-start">
-            <div className="min-w-0">
-              <CardTitle className="text-base">{course.title}</CardTitle>
-              <CardDescription className="mt-1">
-                {course.shortDescription?.trim() ? course.shortDescription.trim() : 'Sin descripción.'}
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              {course.category ? <Badge variant="neutral">{course.category.name}</Badge> : <Badge variant="neutral">Sin categoría</Badge>}
-            </div>
-            <div className="text-xs text-muted-fg">
-              <span className="text-fg">{instructorName}</span>
-              <span className="px-2 text-border/80">|</span>
-              <span>{course.metrics.lessonCount} lecciones</span>
-              <span className="px-2 text-border/80">|</span>
-              <span>{course.metrics.durationHours}h</span>
-            </div>
-          </CardContent>
-        </Card>
+            <CardHeader className="items-start">
+              <div className="min-w-0">
+                <CardTitle className="text-base">{course.title}</CardTitle>
+                <CardDescription className="mt-1">
+                  {course.shortDescription?.trim() ? course.shortDescription.trim() : 'Sin descripción.'}
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                {course.category ? <Badge variant="neutral">{course.category.name}</Badge> : <Badge variant="neutral">Sin categoría</Badge>}
+              </div>
+              <div className="text-xs text-muted-fg">
+                <span className="text-fg">{instructorName}</span>
+                <span className="px-2 text-border/80">|</span>
+                <span>{course.metrics.lessonCount} lecciones</span>
+                <span className="px-2 text-border/80">|</span>
+                <span>{course.metrics.durationHours}h</span>
+              </div>
+            </CardContent>
+          </Card>
+        </HoverLift>
       </GradientBorder>
     </Link>
   );
@@ -975,11 +764,12 @@ export default function HomePage() {
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-bg px-4 pb-20 pt-24 sm:px-6">
       <div ref={navMarkerRef} aria-hidden className="pointer-events-none absolute left-0 top-2 h-px w-px" />
+      <Atmosphere />
       <NoiseOverlay />
       <ScrollAwareNav session={session} scrolled={scrolled} />
 
       <div className="absolute inset-0">
-        <Aurora />
+        <Aurora intensity={0.62} />
       </div>
 
       <div className="relative mx-auto w-full max-w-6xl">
@@ -995,11 +785,11 @@ export default function HomePage() {
             <div className="h-[680px] w-[680px] rounded-full [background:radial-gradient(circle_at_center,rgba(59,130,246,0.16),transparent_62%)] blur-[26px]" />
           </div>
 
-          <div className="relative">
-            <Reveal>
+          <Reveal className="relative" stagger={0.095}>
+            <RevealItem>
               <p className="font-mono text-xs tracking-wide text-muted-fg">Estudio de desarrollo de software</p>
-            </Reveal>
-            <Reveal delay={0.04}>
+            </RevealItem>
+            <RevealItem>
               <h1 className="mt-4 font-display text-4xl leading-[1.06] text-fg sm:text-5xl lg:text-6xl">
                 Construimos{' '}
                 <span className="bg-gradient-to-r from-primary via-violet to-primary bg-clip-text text-transparent">
@@ -1007,14 +797,13 @@ export default function HomePage() {
                 </span>{' '}
                 a medida, con estándar de producto.
               </h1>
-            </Reveal>
-            <Reveal delay={0.08}>
+            </RevealItem>
+            <RevealItem>
               <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-fg">
                 Web, mobile, Odoo ERP y Unity. Equipo senior, ejecución por hitos, calidad medible.
               </p>
-            </Reveal>
-
-            <Reveal delay={0.12}>
+            </RevealItem>
+            <RevealItem>
               <div className="mt-7 flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Button
                   asChild
@@ -1036,51 +825,54 @@ export default function HomePage() {
                   </Link>
                 ) : null}
               </div>
-            </Reveal>
-
-            <Reveal delay={0.16}>
+            </RevealItem>
+            <RevealItem>
               <div className="mt-7 flex flex-wrap gap-2">
                 <Badge variant="neutral">Presupuesto a medida</Badge>
                 <Badge variant="neutral">Entrega por hitos</Badge>
                 <Badge variant="neutral">Stack moderno</Badge>
               </div>
-            </Reveal>
-          </div>
+            </RevealItem>
+          </Reveal>
 
-          <Reveal delay={0.1} className="relative">
-            <Spotlight />
-            <div className="relative">
-              <GradientBorder tint="primary" className="shadow-[0_40px_120px_rgba(0,0,0,0.55)]">
-                <Card className="relative overflow-hidden rounded-2xl bg-card/40 supports-[backdrop-filter]:bg-card/30">
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 opacity-95 [background:radial-gradient(90%_80%_at_10%_10%,rgba(59,130,246,0.22),transparent_62%),radial-gradient(70%_60%_at_92%_0%,rgba(99,102,241,0.18),transparent_62%)]"
-                  />
-                  <div className="relative grid gap-3 p-4 sm:p-6">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-border/60 bg-bg/30 px-4 py-4">
-                        <p className="text-xs font-medium text-fg">Web</p>
-                        <p className="mt-1 text-xs text-muted-fg">Next.js, performance, SEO</p>
+          <Reveal className="relative">
+            <RevealItem className="relative">
+              <Spotlight />
+              <div className="relative">
+                <GradientBorder tint="primary" className="shadow-[0_40px_120px_rgba(0,0,0,0.55)]">
+                  <HoverLift>
+                    <Card className="relative overflow-hidden rounded-2xl bg-card/40 supports-[backdrop-filter]:bg-card/30 hover:translate-y-0 hover:scale-100">
+                      <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 opacity-95 [background:radial-gradient(90%_80%_at_10%_10%,rgba(59,130,246,0.22),transparent_62%),radial-gradient(70%_60%_at_92%_0%,rgba(99,102,241,0.18),transparent_62%)]"
+                      />
+                      <div className="relative grid gap-3 p-4 sm:p-6">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-2xl border border-border/60 bg-bg/30 px-4 py-4">
+                            <p className="text-xs font-medium text-fg">Web</p>
+                            <p className="mt-1 text-xs text-muted-fg">Next.js, performance, SEO</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-bg/30 px-4 py-4">
+                            <p className="text-xs font-medium text-fg">Mobile</p>
+                            <p className="mt-1 text-xs text-muted-fg">Apps nativas y multiplataforma</p>
+                          </div>
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-2xl border border-border/60 bg-bg/30 px-4 py-4">
+                            <p className="text-xs font-medium text-fg">Odoo ERP</p>
+                            <p className="mt-1 text-xs text-muted-fg">Implementación y consultoría</p>
+                          </div>
+                          <div className="rounded-2xl border border-border/60 bg-bg/30 px-4 py-4">
+                            <p className="text-xs font-medium text-fg">Unity</p>
+                            <p className="mt-1 text-xs text-muted-fg">Videojuegos y experiencias</p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="rounded-2xl border border-border/60 bg-bg/30 px-4 py-4">
-                        <p className="text-xs font-medium text-fg">Mobile</p>
-                        <p className="mt-1 text-xs text-muted-fg">Apps nativas y multiplataforma</p>
-                      </div>
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-border/60 bg-bg/30 px-4 py-4">
-                        <p className="text-xs font-medium text-fg">Odoo ERP</p>
-                        <p className="mt-1 text-xs text-muted-fg">Implementación y consultoría</p>
-                      </div>
-                      <div className="rounded-2xl border border-border/60 bg-bg/30 px-4 py-4">
-                        <p className="text-xs font-medium text-fg">Unity</p>
-                        <p className="mt-1 text-xs text-muted-fg">Videojuegos y experiencias</p>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </GradientBorder>
-            </div>
+                    </Card>
+                  </HoverLift>
+                </GradientBorder>
+              </div>
+            </RevealItem>
           </Reveal>
 
           <div
@@ -1103,18 +895,22 @@ export default function HomePage() {
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-70 [background:radial-gradient(70%_120%_at_20%_0%,rgba(59,130,246,0.08),transparent_60%),radial-gradient(60%_80%_at_90%_60%,rgba(99,102,241,0.06),transparent_55%)]"
           />
-          <SectionHeader
-            title="Servicios"
-            description="El negocio principal es construir productos. La academia existe como brazo secundario."
-            right={
-              <Button asChild variant="secondary">
-                <a href="#contact">Cuéntanos tu proyecto</a>
-              </Button>
-            }
-          />
+          <Reveal>
+            <RevealItem>
+              <SectionHeader
+                title="Servicios"
+                description="El negocio principal es construir productos. La academia existe como brazo secundario."
+                right={
+                  <Button asChild variant="secondary">
+                    <a href="#contact">Cuéntanos tu proyecto</a>
+                  </Button>
+                }
+              />
+            </RevealItem>
+          </Reveal>
 
-          <div className="mt-10 grid grid-cols-12 gap-4">
-            <Reveal className="col-span-12 md:col-span-7">
+          <Reveal className="mt-10 grid grid-cols-12 gap-4">
+            <RevealItem className="col-span-12 md:col-span-7">
               <ServiceCard
                 tint="primary"
                 icon={<IconWorld className="h-5 w-5" strokeWidth={1.6} />}
@@ -1122,8 +918,8 @@ export default function HomePage() {
                 description="Next.js 14, TypeScript y entrega con foco en performance y mantenimiento."
                 bullets={['Arquitectura limpia', 'SEO y Core Web Vitals', 'Paneles internos y producto']}
               />
-            </Reveal>
-            <Reveal className="col-span-12 md:col-span-5" delay={0.04}>
+            </RevealItem>
+            <RevealItem className="col-span-12 md:col-span-5">
               <ServiceCard
                 tint="violet"
                 icon={<IconDeviceMobile className="h-5 w-5" strokeWidth={1.6} />}
@@ -1131,8 +927,8 @@ export default function HomePage() {
                 description="Apps rápidas, con UX cuidada. Integraciones, auth y publicación."
                 bullets={['Offline y sincronización', 'Push y analytics', 'Release y soporte']}
               />
-            </Reveal>
-            <Reveal className="col-span-12 md:col-span-5" delay={0.06}>
+            </RevealItem>
+            <RevealItem className="col-span-12 md:col-span-5">
               <ServiceCard
                 tint="violet"
                 icon={<IconStack2 className="h-5 w-5" strokeWidth={1.6} />}
@@ -1140,8 +936,8 @@ export default function HomePage() {
                 description="Diagnóstico, implementación, personalización y despliegue en LATAM."
                 bullets={['CRM, ventas, compras', 'Inventario y manufactura', 'Contabilidad y RRHH']}
               />
-            </Reveal>
-            <Reveal className="col-span-12 md:col-span-7" delay={0.08}>
+            </RevealItem>
+            <RevealItem className="col-span-12 md:col-span-7">
               <ServiceCard
                 tint="primary"
                 icon={<IconDeviceGamepad2 className="h-5 w-5" strokeWidth={1.6} />}
@@ -1149,26 +945,30 @@ export default function HomePage() {
                 description="Prototipos a producción con un pipeline claro y rendimiento real."
                 bullets={['Gameplay y UI', 'Optimización', 'Builds multiplataforma']}
               />
-            </Reveal>
-          </div>
+            </RevealItem>
+          </Reveal>
         </section>
 
         <section className="py-16">
-          <SectionHeader
-            title="Señales de seniority"
-            description="Pocas promesas. Mucha ejecución. Lo medible primero."
-          />
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <Reveal>
+          <Reveal>
+            <RevealItem>
+              <SectionHeader
+                title="Señales de seniority"
+                description="Pocas promesas. Mucha ejecución. Lo medible primero."
+              />
+            </RevealItem>
+          </Reveal>
+          <Reveal className="mt-8 grid gap-4 md:grid-cols-3">
+            <RevealItem>
               <Metric label="Años combinados en Odoo (mínimo)" value={45} suffix="+" />
-            </Reveal>
-            <Reveal delay={0.04}>
+            </RevealItem>
+            <RevealItem>
               <Metric label="Líneas de servicio activas" value={4} suffix="" />
-            </Reveal>
-            <Reveal delay={0.08}>
+            </RevealItem>
+            <RevealItem>
               <Metric label="Cadencia de demo" value={1} suffix=" semana" />
-            </Reveal>
-          </div>
+            </RevealItem>
+          </Reveal>
         </section>
 
         <section id="work" className="relative py-16">
@@ -1176,16 +976,20 @@ export default function HomePage() {
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-80 [background:radial-gradient(70%_120%_at_60%_0%,rgba(99,102,241,0.08),transparent_62%),radial-gradient(60%_90%_at_10%_70%,rgba(59,130,246,0.06),transparent_58%)]"
           />
-          <SectionHeader
-            title="Portafolio"
-            description="Proyectos de ejemplo, sustituibles. Representan cada servicio."
-            right={
-              <Button asChild variant="secondary">
-                <a href="#contact">Cuéntanos tu proyecto</a>
-              </Button>
-            }
-          />
-          <div className="mt-10 grid grid-cols-12 gap-4">
+          <Reveal>
+            <RevealItem>
+              <SectionHeader
+                title="Portafolio"
+                description="Proyectos de ejemplo, sustituibles. Representan cada servicio."
+                right={
+                  <Button asChild variant="secondary">
+                    <a href="#contact">Cuéntanos tu proyecto</a>
+                  </Button>
+                }
+              />
+            </RevealItem>
+          </Reveal>
+          <Reveal className="mt-10 grid grid-cols-12 gap-4">
             {projects.map((p) => (
               <ProjectTile
                 key={p.title}
@@ -1196,7 +1000,7 @@ export default function HomePage() {
                 size={p.size}
               />
             ))}
-          </div>
+          </Reveal>
         </section>
 
         <section id="team" className="relative py-16">
@@ -1204,13 +1008,17 @@ export default function HomePage() {
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-70 [background:radial-gradient(70%_100%_at_15%_20%,rgba(59,130,246,0.06),transparent_60%),radial-gradient(60%_90%_at_80%_0%,rgba(99,102,241,0.07),transparent_55%)]"
           />
-          <SectionHeader
-            title="Equipo"
-            description="Trabajo directo con perfiles senior. Sin capas innecesarias."
-          />
+          <Reveal>
+            <RevealItem>
+              <SectionHeader
+                title="Equipo"
+                description="Trabajo directo con perfiles senior. Sin capas innecesarias."
+              />
+            </RevealItem>
+          </Reveal>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {team.map((member, idx) => {
+          <Reveal className="mt-10 grid gap-4 md:grid-cols-3">
+            {team.map((member) => {
               const tint = member.tint;
               const ring =
                 tint === 'primary'
@@ -1218,50 +1026,50 @@ export default function HomePage() {
                   : 'bg-gradient-to-br from-violet/40 via-border/25 to-primary/25';
 
               return (
-                <Reveal key={member.name} delay={idx * 0.05}>
+                <RevealItem key={member.name}>
                   <GradientBorder tint={tint}>
-                    <Card
-                      className={cx(
-                        'group relative overflow-hidden rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35',
-                        'transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
-                        'hover:-translate-y-0.5',
-                      )}
-                    >
-                      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-85 [background:radial-gradient(90%_70%_at_20%_0%,rgba(255,255,255,0.06),transparent_60%)]" />
-                      <CardHeader className="items-start">
-                        <div className="flex items-start gap-3">
-                          <div className={cx('rounded-2xl p-px', ring)}>
-                            <div className="grid h-12 w-12 place-items-center rounded-[calc(theme(borderRadius.2xl)-1px)] border border-border/60 bg-bg/35">
-                              <span className="font-mono text-sm text-fg">{member.initials}</span>
+                    <HoverLift>
+                      <Card className="group relative overflow-hidden rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35 hover:translate-y-0 hover:scale-100">
+                        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-85 [background:radial-gradient(90%_70%_at_20%_0%,rgba(255,255,255,0.06),transparent_60%)]" />
+                        <CardHeader className="items-start">
+                          <div className="flex items-start gap-3">
+                            <div className={cx('rounded-2xl p-px', ring)}>
+                              <div className="grid h-12 w-12 place-items-center rounded-[calc(theme(borderRadius.2xl)-1px)] border border-border/60 bg-bg/35">
+                                <span className="font-mono text-sm text-fg">{member.initials}</span>
+                              </div>
+                            </div>
+                            <div className="min-w-0">
+                              <CardTitle className="text-base">{member.name}</CardTitle>
+                              <CardDescription className="mt-1">{member.role}</CardDescription>
                             </div>
                           </div>
-                          <div className="min-w-0">
-                            <CardTitle className="text-base">{member.name}</CardTitle>
-                            <CardDescription className="mt-1">{member.role}</CardDescription>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm leading-relaxed text-muted-fg">{member.bio}</p>
-                      </CardContent>
-                    </Card>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm leading-relaxed text-muted-fg">{member.bio}</p>
+                        </CardContent>
+                      </Card>
+                    </HoverLift>
                   </GradientBorder>
-                </Reveal>
+                </RevealItem>
               );
             })}
-          </div>
+          </Reveal>
         </section>
 
         <section id="academy" className="py-16">
-          <SectionHeader
-            title="Academia"
-            description="También formamos developers. Cursos destacados desde el backend real."
-            right={
-              <Button asChild variant="secondary">
-                <Link href="/courses">Ver todos los cursos</Link>
-              </Button>
-            }
-          />
+          <Reveal>
+            <RevealItem>
+              <SectionHeader
+                title="Academia"
+                description="También formamos developers. Cursos destacados desde el backend real."
+                right={
+                  <Button asChild variant="secondary">
+                    <Link href="/courses">Ver todos los cursos</Link>
+                  </Button>
+                }
+              />
+            </RevealItem>
+          </Reveal>
 
           <div className="mt-10">
             {featured.isLoading ? (
@@ -1319,50 +1127,58 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {featured.data.items.map((course, idx) => (
-                  <Reveal key={course.id} delay={idx * 0.05}>
+              <Reveal className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {featured.data.items.map((course) => (
+                  <RevealItem key={course.id}>
                     <CourseCard course={course} />
-                  </Reveal>
+                  </RevealItem>
                 ))}
-              </div>
+              </Reveal>
             )}
           </div>
         </section>
 
         <section className="py-16">
-          <SectionHeader
-            title="Comunidad y KODI"
-            description="Lo estamos preparando. Se marca como próximamente, sin prometer fechas."
-          />
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <Reveal>
+          <Reveal>
+            <RevealItem>
+              <SectionHeader
+                title="Comunidad y KODI"
+                description="Lo estamos preparando. Se marca como próximamente, sin prometer fechas."
+              />
+            </RevealItem>
+          </Reveal>
+          <Reveal className="mt-10 grid gap-4 md:grid-cols-2">
+            <RevealItem>
               <GradientBorder tint="violet">
-                <Card className="rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35">
-                  <CardHeader>
-                    <div>
-                      <CardTitle>Comunidad</CardTitle>
-                      <CardDescription>Espacio para compartir progreso y resolver bloqueos.</CardDescription>
-                    </div>
-                    <Badge variant="neutral">Próximamente</Badge>
-                  </CardHeader>
-                </Card>
+                <HoverLift>
+                  <Card className="rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35 hover:translate-y-0 hover:scale-100">
+                    <CardHeader>
+                      <div>
+                        <CardTitle>Comunidad</CardTitle>
+                        <CardDescription>Espacio para compartir progreso y resolver bloqueos.</CardDescription>
+                      </div>
+                      <Badge variant="neutral">Próximamente</Badge>
+                    </CardHeader>
+                  </Card>
+                </HoverLift>
               </GradientBorder>
-            </Reveal>
-            <Reveal delay={0.05}>
+            </RevealItem>
+            <RevealItem>
               <GradientBorder tint="primary">
-                <Card className="rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35">
-                  <CardHeader>
-                    <div>
-                      <CardTitle>KODI</CardTitle>
-                      <CardDescription>Asistente IA conectado al ecosistema.</CardDescription>
-                    </div>
-                    <Badge variant="neutral">Próximamente</Badge>
-                  </CardHeader>
-                </Card>
+                <HoverLift>
+                  <Card className="rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35 hover:translate-y-0 hover:scale-100">
+                    <CardHeader>
+                      <div>
+                        <CardTitle>KODI</CardTitle>
+                        <CardDescription>Asistente IA conectado al ecosistema.</CardDescription>
+                      </div>
+                      <Badge variant="neutral">Próximamente</Badge>
+                    </CardHeader>
+                  </Card>
+                </HoverLift>
               </GradientBorder>
-            </Reveal>
-          </div>
+            </RevealItem>
+          </Reveal>
         </section>
 
         <section id="contact" className="py-16">
@@ -1477,31 +1293,35 @@ export default function HomePage() {
               </GradientBorder>
             </div>
 
-            <Reveal delay={0.05}>
-              <GradientBorder tint="violet">
-                <Card className="rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35">
-                  <CardHeader className="items-start">
-                    <div>
-                      <CardTitle className="text-base">Qué incluye</CardTitle>
-                      <CardDescription>Para responderte más rápido.</CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-sm text-muted-fg">
-                    {[
-                      'Objetivo, público y fecha objetivo.',
-                      'Integraciones necesarias (pagos, APIs, ERP, auth).',
-                      'Si ya hay diseño, código o infraestructura existente.',
-                    ].map((line) => (
-                      <div key={line} className="flex items-start gap-2">
-                        <span aria-hidden className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border/60 bg-muted/35">
-                          <IconCheck className="h-3.5 w-3.5 text-fg/90" strokeWidth={2} />
-                        </span>
-                        <p className="pt-0.5">{line}</p>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </GradientBorder>
+            <Reveal>
+              <RevealItem>
+                <GradientBorder tint="violet">
+                  <HoverLift>
+                    <Card className="rounded-2xl bg-card/45 supports-[backdrop-filter]:bg-card/35 hover:translate-y-0 hover:scale-100">
+                      <CardHeader className="items-start">
+                        <div>
+                          <CardTitle className="text-base">Qué incluye</CardTitle>
+                          <CardDescription>Para responderte más rápido.</CardDescription>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm text-muted-fg">
+                        {[
+                          'Objetivo, público y fecha objetivo.',
+                          'Integraciones necesarias (pagos, APIs, ERP, auth).',
+                          'Si ya hay diseño, código o infraestructura existente.',
+                        ].map((line) => (
+                          <div key={line} className="flex items-start gap-2">
+                            <span aria-hidden className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border/60 bg-muted/35">
+                              <IconCheck className="h-3.5 w-3.5 text-fg/90" strokeWidth={2} />
+                            </span>
+                            <p className="pt-0.5">{line}</p>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  </HoverLift>
+                </GradientBorder>
+              </RevealItem>
             </Reveal>
           </div>
         </section>

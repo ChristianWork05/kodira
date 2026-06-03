@@ -32,6 +32,14 @@ export function courseCategoriesKey() {
   return ['education', 'categories'] as const;
 }
 
+export function courseLessonsKey(courseId: string) {
+  return ['education', 'courseLessons', courseId] as const;
+}
+
 export function myCoursesKey(parts: { page?: number; limit?: number }) {
   return ['education', 'myCourses', parts.page ?? 1, parts.limit ?? 20] as const;
+}
+
+export function instructorCoursesKey(parts: { page?: number; limit?: number; state?: string }) {
+  return ['education', 'instructorCourses', parts.page ?? 1, parts.limit ?? 20, parts.state ?? ''] as const;
 }

@@ -59,6 +59,9 @@ export class Lesson {
   @Prop({ type: String, default: null })
   videoId?: string | null;
 
+  @Prop({ type: String, default: null })
+  videoUrl?: string | null;
+
   @Prop({ type: Number, default: null })
   videoDuration?: number | null;
 
@@ -202,6 +205,9 @@ export class Course {
 
   @Prop({ type: [SectionSchema], default: [] })
   sections!: Section[];
+
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

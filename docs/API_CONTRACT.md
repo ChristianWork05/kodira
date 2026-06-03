@@ -351,11 +351,17 @@ Todos los errores siguen un shape consistente:
 - **Auth**: Bearer
 - **Respuesta 200**: lista paginada de mis cursos con progreso y `lastLessonId`
 
+### GET `/api/v1/me/instructor/courses`
+
+- **Auth**: Bearer + rol `instructor`
+- **Query**: `page`, `limit`, `state?`
+- **Respuesta 200**: lista paginada de mis cursos como instructor (incluye drafts) con su temario (secciones y lecciones con `id/title`)
+
 ### GET `/api/v1/courses/:id/lessons`
 
 - **Auth**: Bearer
 - **Regla**
-  - Si estoy inscrito → devuelve el contenido completo (sin `solutionCode`)
+  - Si estoy inscrito → devuelve el contenido completo (sin `solutionCode`) y `lessonProgress` por lección
   - Si no estoy inscrito → solo lecciones `isFreePreview` traen `content/videoId`; el resto viene null
 
 ### POST `/api/v1/lessons/:id/progress`
@@ -380,4 +386,38 @@ Todos los errores siguen un shape consistente:
 
 ```json
 { "ok": true, "progressPercentage": 100, "isCompleted": true }
+```
+
+## Storage
+
+### POST `/api/v1/storage/upload-url`
+
+- **Auth**: Bearer + rol `instructor` (y debe ser dueño del curso)
+- **Body**
+
+```json
+{
+  "kind": "video",
+  "filename": "intro.mp4",
+  "contentType": "video/mp4",
+  "sizeBytes": 123456,
+  "courseId": "665a...",
+  "lessonId": "665b..."
+}
+```
+
+- **Validaciones**
+  - `kind`: `video|image|attachment`
+  - `video` → `video/mp4|video/webm`, max 2 GB
+  - `image` → `image/png|image/jpeg|image/webp`, max 5 MB
+  - `attachment` → `application/pdf|application/zip|application/x-zip-compressed`, max 50 MB
+  - Si viene `lessonId`, debe pertenecer a ese `courseId`
+- **Respuesta 200**
+
+```json
+{
+  "uploadUrl": "https://... (PUT prefirmado, caduca ~10 min)",
+  "publicUrl": "https://.../courses/{courseId}/{kind}/{uuid}.{ext}",
+  "key": "courses/{courseId}/{kind}/{uuid}.{ext}"
+}
 ```

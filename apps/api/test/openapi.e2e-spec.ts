@@ -103,6 +103,10 @@ describe('OpenAPI document (e2e)', () => {
     expect(paths.some((p) => p.startsWith('/api/v1/lessons'))).toBe(true);
     expect(paths.some((p) => p.includes('/courses/{id}/enroll'))).toBe(true);
     expect(paths.some((p) => p.includes('/courses/{id}/lessons'))).toBe(true);
+    expect(paths.includes('/api/v1/me/instructor/courses')).toBe(true);
+
+    const lessonSchema = doc.components?.schemas?.LessonDto as any;
+    expect(lessonSchema?.properties?.lessonProgress).toBeDefined();
   });
 });
 

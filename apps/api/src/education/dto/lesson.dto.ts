@@ -8,6 +8,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   MaxLength,
   Min,
   ValidateNested,
@@ -81,6 +82,12 @@ export class AddLessonDto implements AddLessonRequest {
   @IsOptional()
   @IsString()
   videoId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @Transform(({ value }) => (value === '' ? null : typeof value === 'string' ? value.trim() : value))
+  @IsUrl({ require_protocol: true, require_tld: false })
+  videoUrl?: string | null;
 
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()
@@ -162,6 +169,12 @@ export class UpdateLessonDto implements UpdateLessonRequest {
   @IsOptional()
   @IsString()
   videoId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  @IsOptional()
+  @Transform(({ value }) => (value === '' ? null : typeof value === 'string' ? value.trim() : value))
+  @IsUrl({ require_protocol: true, require_tld: false })
+  videoUrl?: string | null;
 
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()

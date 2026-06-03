@@ -1,21 +1,44 @@
 import axios, { type AxiosInstance } from 'axios';
 import type {
+  AddLessonRequest,
+  AddLessonResponse,
+  AddSectionRequest,
+  AddSectionResponse,
   AuthResponse,
   AuthTokens,
   Category,
+  CreateCourseRequest,
+  CreateCourseResponse,
   Course,
+  DeleteLessonResponse,
+  DeleteSectionResponse,
   EnrollCourseResponse,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
+  GetCourseLessonsResponse,
   HealthResponse,
+  LessonCompleteResponse,
+  LessonProgressRequest,
+  LessonProgressResponse,
   ListCoursesQuery,
   ListCoursesResponse,
+  ListInstructorCoursesQuery,
+  ListInstructorCoursesResponse,
   ListMyCoursesQuery,
   ListMyCoursesResponse,
   LoginRequest,
   LogoutResponse,
+  PublishCourseResponse,
   RefreshRequest,
   RegisterRequest,
+  StorageCreateUploadUrlRequest,
+  StorageCreateUploadUrlResponse,
+  UpdateCourseRequest,
+  UpdateCourseResponse,
+  UpdateLessonRequest,
+  UpdateLessonResponse,
+  UpdateSectionRequest,
+  UpdateSectionResponse,
   UpdateMyProfileRequest,
   UserMe,
   PublicUserProfile,
@@ -58,6 +81,48 @@ export interface KodiraApiClient {
     listCategories: () => Promise<Category[]>;
     enrollCourse: (courseId: string) => Promise<EnrollCourseResponse>;
     listMyCourses: (query?: ListMyCoursesQuery) => Promise<ListMyCoursesResponse>;
+    listInstructorCourses: (
+      query?: ListInstructorCoursesQuery,
+    ) => Promise<ListInstructorCoursesResponse>;
+
+    createCourse: (body: CreateCourseRequest) => Promise<CreateCourseResponse>;
+    updateCourse: (courseId: string, body: UpdateCourseRequest) => Promise<UpdateCourseResponse>;
+    publishCourse: (courseId: string) => Promise<PublishCourseResponse>;
+    getCourseLessons: (courseId: string) => Promise<GetCourseLessonsResponse>;
+
+    addSection: (courseId: string, body: AddSectionRequest) => Promise<AddSectionResponse>;
+    updateSection: (
+      courseId: string,
+      sectionId: string,
+      body: UpdateSectionRequest,
+    ) => Promise<UpdateSectionResponse>;
+    deleteSection: (courseId: string, sectionId: string) => Promise<DeleteSectionResponse>;
+
+    addLesson: (
+      courseId: string,
+      sectionId: string,
+      body: AddLessonRequest,
+    ) => Promise<AddLessonResponse>;
+    updateLesson: (
+      courseId: string,
+      sectionId: string,
+      lessonId: string,
+      body: UpdateLessonRequest,
+    ) => Promise<UpdateLessonResponse>;
+    deleteLesson: (
+      courseId: string,
+      sectionId: string,
+      lessonId: string,
+    ) => Promise<DeleteLessonResponse>;
+  };
+  lessons: {
+    saveProgress: (lessonId: string, body: LessonProgressRequest) => Promise<LessonProgressResponse>;
+    complete: (lessonId: string) => Promise<LessonCompleteResponse>;
+  };
+  storage: {
+    createUploadUrl: (
+      body: StorageCreateUploadUrlRequest,
+    ) => Promise<StorageCreateUploadUrlResponse>;
   };
 }
 
@@ -184,6 +249,91 @@ export function createKodiraApiClient(
         const { data } = await http.get<ListMyCoursesResponse>('/api/v1/me/courses', {
           params: query,
         });
+        return data;
+      },
+      async listInstructorCourses(query) {
+        const { data } = await http.get<ListInstructorCoursesResponse>(
+          '/api/v1/me/instructor/courses',
+          { params: query },
+        );
+        return data;
+      },
+
+      async createCourse(body) {
+        const { data } = await http.post<CreateCourseResponse>('/api/v1/courses', body);
+        return data;
+      },
+      async updateCourse(courseId, body) {
+        const { data } = await http.put<UpdateCourseResponse>(`/api/v1/courses/${courseId}`, body);
+        return data;
+      },
+      async publishCourse(courseId) {
+        const { data } = await http.post<PublishCourseResponse>(`/api/v1/courses/${courseId}/publish`);
+        return data;
+      },
+      async getCourseLessons(courseId) {
+        const { data } = await http.get<GetCourseLessonsResponse>(`/api/v1/courses/${courseId}/lessons`);
+        return data;
+      },
+
+      async addSection(courseId, body) {
+        const { data } = await http.post<AddSectionResponse>(`/api/v1/courses/${courseId}/sections`, body);
+        return data;
+      },
+      async updateSection(courseId, sectionId, body) {
+        const { data } = await http.put<UpdateSectionResponse>(
+          `/api/v1/courses/${courseId}/sections/${sectionId}`,
+          body,
+        );
+        return data;
+      },
+      async deleteSection(courseId, sectionId) {
+        const { data } = await http.delete<DeleteSectionResponse>(
+          `/api/v1/courses/${courseId}/sections/${sectionId}`,
+        );
+        return data;
+      },
+
+      async addLesson(courseId, sectionId, body) {
+        const { data } = await http.post<AddLessonResponse>(
+          `/api/v1/courses/${courseId}/sections/${sectionId}/lessons`,
+          body,
+        );
+        return data;
+      },
+      async updateLesson(courseId, sectionId, lessonId, body) {
+        const { data } = await http.put<UpdateLessonResponse>(
+          `/api/v1/courses/${courseId}/sections/${sectionId}/lessons/${lessonId}`,
+          body,
+        );
+        return data;
+      },
+      async deleteLesson(courseId, sectionId, lessonId) {
+        const { data } = await http.delete<DeleteLessonResponse>(
+          `/api/v1/courses/${courseId}/sections/${sectionId}/lessons/${lessonId}`,
+        );
+        return data;
+      },
+    },
+    lessons: {
+      async saveProgress(lessonId, body) {
+        const { data } = await http.post<LessonProgressResponse>(
+          `/api/v1/lessons/${lessonId}/progress`,
+          body,
+        );
+        return data;
+      },
+      async complete(lessonId) {
+        const { data } = await http.post<LessonCompleteResponse>(`/api/v1/lessons/${lessonId}/complete`);
+        return data;
+      },
+    },
+    storage: {
+      async createUploadUrl(body) {
+        const { data } = await http.post<StorageCreateUploadUrlResponse>(
+          '/api/v1/storage/upload-url',
+          body,
+        );
         return data;
       },
     },

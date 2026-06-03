@@ -4,6 +4,12 @@ import type { AuthTokens } from '@kodira/types';
 let browserClient: KodiraApiClient | undefined;
 
 const AUTH_STORAGE_KEY = 'kodira.auth.tokens.v1';
+const PROTECTED_PREFIXES = ['/dashboard', '/courses', '/studio', '/profile', '/settings', '/design'] as const;
+
+function shouldRedirectToLogin(pathname: string) {
+  if (pathname === '/login' || pathname === '/register') return false;
+  return PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix + '/'));
+}
 
 function readStoredTokens(): AuthTokens | undefined {
   if (typeof window === 'undefined') return undefined;
@@ -46,7 +52,11 @@ export function getKodiraApiClient() {
       clear: async () => clearStoredTokens(),
     },
     onAuthInvalidated: () => {
-      if (window.location.pathname !== '/login') window.location.assign('/login');
+      const pathname = window.location.pathname;
+      if (!shouldRedirectToLogin(pathname)) return;
+      const next = `${window.location.pathname}${window.location.search}`;
+      const target = next ? `/login?next=${encodeURIComponent(next)}` : '/login';
+      if (window.location.pathname !== '/login') window.location.assign(target);
     },
   });
   return browserClient;

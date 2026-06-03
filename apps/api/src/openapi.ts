@@ -1,28 +1,9 @@
-import { Test } from '@nestjs/testing';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { HealthController } from './health/health.controller';
-import { HealthService } from './health/health.service';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
-import { User, UserSchema } from './users/schemas/user.schema';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
-import { JwtStrategy } from './auth/strategies/jwt.strategy';
-import { Course, CourseSchema } from './education/schemas/course.schema';
-import { Category, CategorySchema } from './education/schemas/category.schema';
-import { Enrollment, EnrollmentSchema } from './education/schemas/enrollment.schema';
-import { EducationController } from './education/education.controller';
-import { EducationService } from './education/education.service';
-import { EnrollmentService } from './education/enrollment.service';
-import { EducationMeController } from './education/me.controller';
-import { LessonsController } from './education/lessons.controller';
+import { AppModule } from './app.module';
 
 function findRepoRoot(startDir: string): string {
   let dir = startDir;
@@ -48,43 +29,10 @@ async function generateOpenApi() {
   const mongo = await MongoMemoryServer.create();
   const mongoUri = mongo.getUri();
 
-  const moduleRef = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
-      PassportModule,
-      JwtModule.registerAsync({
-        inject: [ConfigService],
-        useFactory: (config: ConfigService) => ({
-          secret: config.get<string>('JWT_SECRET'),
-        }),
-      }),
-      MongooseModule.forRoot(mongoUri),
-      MongooseModule.forFeature([
-        { name: User.name, schema: UserSchema },
-        { name: Course.name, schema: CourseSchema },
-        { name: Category.name, schema: CategorySchema },
-        { name: Enrollment.name, schema: EnrollmentSchema },
-      ]),
-    ],
-    controllers: [
-      HealthController,
-      UsersController,
-      AuthController,
-      EducationController,
-      EducationMeController,
-      LessonsController,
-    ],
-    providers: [
-      HealthService,
-      UsersService,
-      AuthService,
-      JwtStrategy,
-      EducationService,
-      EnrollmentService,
-    ],
-  }).compile();
+  process.env.MONGODB_URI = mongoUri;
+  process.env.REDIS_URL = process.env.REDIS_URL ?? 'redis://127.0.0.1:6379';
 
-  const app = moduleRef.createNestApplication();
+  const app = await NestFactory.create(AppModule, { logger: false });
   app.setGlobalPrefix('api/v1');
   await app.init();
 
@@ -105,7 +53,7 @@ async function generateOpenApi() {
     deepScanRoutes: true,
   });
 
-  const repoRoot = findRepoRoot(__dirname);
+  const repoRoot = findRepoRoot(process.cwd());
   const outputPath = path.resolve(repoRoot, 'docs', 'openapi.json');
   if (process.env.OPENAPI_DEBUG === '1') {
     process.stderr.write(`openapi: outputPath=${outputPath}\n`);

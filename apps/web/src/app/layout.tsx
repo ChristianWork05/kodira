@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Mono, Inter } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 
@@ -9,7 +9,7 @@ const inter = Inter({
   display: 'swap',
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
+const jetBrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   weight: ['400', '500'],
   variable: '--font-mono',
@@ -19,6 +19,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'KODIRA',
   description: 'Plataforma tech todo-en-uno',
+  icons: {
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+  },
 };
 
 export default function RootLayout({
@@ -27,8 +30,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${ibmPlexMono.variable}`}>
+    <html
+      lang="es"
+      className="dark"
+      suppressHydrationWarning
+      style={{ ['--font-display' as any]: 'Satoshi' }}
+    >
+      <body className={`${inter.variable} ${jetBrainsMono.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>

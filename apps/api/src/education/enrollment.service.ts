@@ -164,7 +164,7 @@ export class EnrollmentService {
       .findOne(this.enrollmentFilter(studentId, courseId))
       .exec();
 
-    const sections = this.toSections(course.sections);
+    const sections = this.toSections(course.sections, enrollment);
     if (enrollment) return { courseId, sections };
 
     return { courseId, sections: this.sanitizeSectionsForUnenrolled(sections) };
@@ -361,7 +361,17 @@ export class EnrollmentService {
     return count;
   }
 
-  private toSections(sections: Section[]): GetCourseLessonsResponse['sections'] {
+  private toSections(
+    sections: Section[],
+    enrollment: EnrollmentDocument | null,
+  ): GetCourseLessonsResponse['sections'] {
+    const progressByLessonId = new Map<string, LessonProgress>();
+    if (enrollment) {
+      for (const lp of enrollment.lessonProgress ?? []) {
+        progressByLessonId.set(lp.lessonId, lp);
+      }
+    }
+
     return (sections ?? []).map((s: any) => ({
       id: s._id.toString(),
       title: s.title,
@@ -372,6 +382,7 @@ export class EnrollmentService {
         order: l.order ?? 0,
         type: l.type,
         videoId: l.videoId ?? null,
+        videoUrl: l.videoUrl ?? null,
         videoDuration: l.videoDuration ?? null,
         content: l.content ?? null,
         isFreePreview: l.isFreePreview ?? false,
@@ -382,6 +393,13 @@ export class EnrollmentService {
         transcript: l.transcript ?? null,
         subtitleUrl: l.subtitleUrl ?? null,
         aiSummary: l.aiSummary ?? null,
+        lessonProgress: enrollment
+          ? {
+              isCompleted: progressByLessonId.get(l._id.toString())?.isCompleted ?? false,
+              watchPercentage: progressByLessonId.get(l._id.toString())?.watchPercentage ?? 0,
+              lastPositionSeconds: progressByLessonId.get(l._id.toString())?.lastPositionSeconds ?? 0,
+            }
+          : null,
       })),
     }));
   }
@@ -394,6 +412,7 @@ export class EnrollmentService {
         return {
           ...l,
           videoId: null,
+          videoUrl: null,
           videoDuration: null,
           content: null,
           quiz: null,
