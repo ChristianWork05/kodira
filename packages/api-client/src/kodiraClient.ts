@@ -42,6 +42,23 @@ import type {
   UpdateMyProfileRequest,
   UserMe,
   PublicUserProfile,
+  ApplySellerRequest,
+  SellerProfileResponse,
+  CreateSellerOfferingRequest,
+  CreateSellerOfferingResponse,
+  UpdateSellerOfferingRequest,
+  UpdateSellerOfferingResponse,
+  ListSellerOfferingsQuery,
+  ListSellerOfferingsResponse,
+  SubmitSellerOfferingResponse,
+  CreateOfferingUploadUrlRequest,
+  CreateOfferingUploadUrlResponse,
+  CreateDigitalAssetRequest,
+  CreateDigitalAssetResponse,
+  ListPublicOfferingsQuery,
+  ListPublicOfferingsResponse,
+  GetPublicOfferingBySlugResponse,
+  GetPublicSellerByIdResponse,
 } from '@kodira/types';
 import { createHttpClient, type CreateHttpClientOptions } from './http';
 
@@ -123,6 +140,33 @@ export interface KodiraApiClient {
     createUploadUrl: (
       body: StorageCreateUploadUrlRequest,
     ) => Promise<StorageCreateUploadUrlResponse>;
+  };
+  marketplace: {
+    listPublicOfferings: (query?: ListPublicOfferingsQuery) => Promise<ListPublicOfferingsResponse>;
+    getPublicOfferingBySlug: (slug: string) => Promise<GetPublicOfferingBySlugResponse>;
+    getPublicSellerById: (sellerId: string) => Promise<GetPublicSellerByIdResponse>;
+
+    applySeller: (body: ApplySellerRequest) => Promise<SellerProfileResponse>;
+    getMySellerProfile: () => Promise<SellerProfileResponse>;
+
+    listMyOfferings: (query?: ListSellerOfferingsQuery) => Promise<ListSellerOfferingsResponse>;
+    createOffering: (body: CreateSellerOfferingRequest) => Promise<CreateSellerOfferingResponse>;
+    updateOffering: (
+      offeringId: string,
+      body: UpdateSellerOfferingRequest,
+    ) => Promise<UpdateSellerOfferingResponse>;
+    submitOffering: (offeringId: string) => Promise<SubmitSellerOfferingResponse>;
+    pauseOffering: (offeringId: string) => Promise<SubmitSellerOfferingResponse>;
+    unpauseOffering: (offeringId: string) => Promise<SubmitSellerOfferingResponse>;
+
+    createOfferingUploadUrl: (
+      offeringId: string,
+      body: CreateOfferingUploadUrlRequest,
+    ) => Promise<CreateOfferingUploadUrlResponse>;
+    createDigitalAsset: (
+      offeringId: string,
+      body: CreateDigitalAssetRequest,
+    ) => Promise<CreateDigitalAssetResponse>;
   };
 }
 
@@ -332,6 +376,82 @@ export function createKodiraApiClient(
       async createUploadUrl(body) {
         const { data } = await http.post<StorageCreateUploadUrlResponse>(
           '/api/v1/storage/upload-url',
+          body,
+        );
+        return data;
+      },
+    },
+    marketplace: {
+      async listPublicOfferings(query) {
+        const { data } = await http.get<ListPublicOfferingsResponse>('/api/v1/offerings', {
+          params: query,
+        });
+        return data;
+      },
+      async getPublicOfferingBySlug(slug) {
+        const { data } = await http.get<GetPublicOfferingBySlugResponse>(`/api/v1/offerings/${slug}`);
+        return data;
+      },
+      async getPublicSellerById(sellerId) {
+        const { data } = await http.get<GetPublicSellerByIdResponse>(`/api/v1/sellers/${sellerId}`);
+        return data;
+      },
+
+      async applySeller(body) {
+        const { data } = await http.post<SellerProfileResponse>('/api/v1/sellers/apply', body);
+        return data;
+      },
+      async getMySellerProfile() {
+        const { data } = await http.get<SellerProfileResponse>('/api/v1/me/seller');
+        return data;
+      },
+
+      async listMyOfferings(query) {
+        const { data } = await http.get<ListSellerOfferingsResponse>('/api/v1/me/seller/offerings', {
+          params: query,
+        });
+        return data;
+      },
+      async createOffering(body) {
+        const { data } = await http.post<CreateSellerOfferingResponse>('/api/v1/me/seller/offerings', body);
+        return data;
+      },
+      async updateOffering(offeringId, body) {
+        const { data } = await http.patch<UpdateSellerOfferingResponse>(
+          `/api/v1/me/seller/offerings/${offeringId}`,
+          body,
+        );
+        return data;
+      },
+      async submitOffering(offeringId) {
+        const { data } = await http.post<SubmitSellerOfferingResponse>(
+          `/api/v1/me/seller/offerings/${offeringId}/submit`,
+        );
+        return data;
+      },
+      async pauseOffering(offeringId) {
+        const { data } = await http.post<SubmitSellerOfferingResponse>(
+          `/api/v1/me/seller/offerings/${offeringId}/pause`,
+        );
+        return data;
+      },
+      async unpauseOffering(offeringId) {
+        const { data } = await http.post<SubmitSellerOfferingResponse>(
+          `/api/v1/me/seller/offerings/${offeringId}/unpause`,
+        );
+        return data;
+      },
+
+      async createOfferingUploadUrl(offeringId, body) {
+        const { data } = await http.post<CreateOfferingUploadUrlResponse>(
+          `/api/v1/me/seller/offerings/${offeringId}/asset/upload-url`,
+          body,
+        );
+        return data;
+      },
+      async createDigitalAsset(offeringId, body) {
+        const { data } = await http.post<CreateDigitalAssetResponse>(
+          `/api/v1/me/seller/offerings/${offeringId}/asset`,
           body,
         );
         return data;

@@ -421,3 +421,170 @@ Todos los errores siguen un shape consistente:
   "key": "courses/{courseId}/{kind}/{uuid}.{ext}"
 }
 ```
+
+## Marketplace
+
+### GET `/api/v1/offerings`
+
+- **Auth**: pública
+- **Query**: `ListPublicOfferingsQuery`
+  - `q?: string`
+  - `type?: digital_product|fixed_package|custom_service`
+  - `category?: string`
+  - `minPrice?: number`
+  - `maxPrice?: number`
+  - `sort?: relevance|popular|new|rating`
+  - `page?: number`
+  - `limit?: number`
+- **Respuesta 200**: `ListPublicOfferingsResponse`
+
+### GET `/api/v1/offerings/:slug`
+
+- **Auth**: pública
+- **Respuesta 200**: `GetPublicOfferingBySlugResponse`
+
+### GET `/api/v1/sellers/:id`
+
+- **Auth**: pública
+- **Respuesta 200**: `GetPublicSellerByIdResponse`
+
+### POST `/api/v1/sellers/apply`
+
+- **Auth**: Bearer (JWT access token)
+- **Body**
+
+```json
+{
+  "displayName": "Mi estudio",
+  "bio": "Servicios y productos digitales.",
+  "categories": ["web", "mobile"]
+}
+```
+
+- **Respuesta 200**
+
+```json
+{
+  "seller": {
+    "id": "665a...",
+    "userId": "665a...",
+    "displayName": "Mi estudio",
+    "bio": "Servicios y productos digitales.",
+    "avatarUrl": null,
+    "categories": ["web", "mobile"],
+    "status": "pending",
+    "payoutAccountId": null,
+    "payoutProvider": null,
+    "ratingAvg": 0,
+    "salesCount": 0,
+    "createdAt": "2026-06-03T00:00:00.000Z",
+    "updatedAt": "2026-06-03T00:00:00.000Z"
+  }
+}
+```
+
+- **Errores**
+  - `409 CONFLICT` si ya existe un SellerProfile para ese usuario.
+
+### GET `/api/v1/me/seller`
+
+- **Auth**: Bearer (JWT access token)
+- **Respuesta 200**: `SellerProfileResponse`
+- **Errores**
+  - `404 NOT_FOUND` si el usuario no tiene SellerProfile.
+
+### POST `/api/v1/me/seller/offerings`
+
+- **Auth**: Bearer + rol `seller`
+- **Body**: `CreateSellerOfferingRequest`
+- **Respuesta 200**: `CreateSellerOfferingResponse`
+
+### PATCH `/api/v1/me/seller/offerings/:id`
+
+- **Auth**: Bearer + rol `seller`
+- **Body**: `UpdateSellerOfferingRequest`
+- **Respuesta 200**: `UpdateSellerOfferingResponse`
+
+### GET `/api/v1/me/seller/offerings`
+
+- **Auth**: Bearer + rol `seller`
+- **Query**: `ListSellerOfferingsQuery`
+  - `page?: number`
+  - `limit?: number`
+- **Respuesta 200**: `ListSellerOfferingsResponse`
+
+### POST `/api/v1/me/seller/offerings/:id/submit`
+
+- **Auth**: Bearer + rol `seller`
+- **Respuesta 200**: `SubmitSellerOfferingResponse`
+
+### POST `/api/v1/me/seller/offerings/:id/pause`
+
+- **Auth**: Bearer + rol `seller`
+- **Respuesta 200**: `SubmitSellerOfferingResponse`
+
+### POST `/api/v1/me/seller/offerings/:id/unpause`
+
+- **Auth**: Bearer + rol `seller`
+- **Respuesta 200**: `SubmitSellerOfferingResponse`
+
+### POST `/api/v1/me/seller/offerings/:id/asset/upload-url`
+
+- **Auth**: Bearer + rol `seller`
+- **Body**: `CreateOfferingUploadUrlRequest`
+- **Respuesta 200**: `CreateOfferingUploadUrlResponse`
+
+### POST `/api/v1/me/seller/offerings/:id/asset`
+
+- **Auth**: Bearer + rol `seller`
+- **Body**: `CreateDigitalAssetRequest`
+- **Respuesta 200**: `CreateDigitalAssetResponse`
+
+### GET `/api/v1/admin/sellers?status=pending`
+
+- **Auth**: Bearer + rol `admin`
+- **Query** (opcional)
+  - `status`: `pending|approved|rejected|suspended` (default `pending`)
+- **Respuesta 200**
+
+```json
+{ "items": [] }
+```
+
+### POST `/api/v1/admin/sellers/:id/approve`
+
+- **Auth**: Bearer + rol `admin`
+- **Efecto**: pone el SellerProfile en `approved` y añade el rol `seller` al usuario.
+- **Respuesta 200**: `SellerProfileResponse`
+
+### POST `/api/v1/admin/sellers/:id/reject`
+
+- **Auth**: Bearer + rol `admin`
+- **Efecto**: pone el SellerProfile en `rejected`.
+- **Respuesta 200**: `SellerProfileResponse`
+
+### GET `/api/v1/admin/settings`
+
+- **Auth**: Bearer + rol `admin`
+- **Respuesta 200**
+
+```json
+{
+  "settings": {
+    "commissionPercent": 15,
+    "updatedBy": null,
+    "updatedAt": "2026-06-03T00:00:00.000Z"
+  }
+}
+```
+
+### PATCH `/api/v1/admin/settings/commission`
+
+- **Auth**: Bearer + rol `admin`
+- **Body**
+
+```json
+{ "commissionPercent": 15 }
+```
+
+- **Respuesta 200**: `MarketplaceSettingsResponse`

@@ -20,3 +20,21 @@ El Frontend anota aquí lo que necesita y no existe aún. El Backend lo resuelve
   - `watchPercentage: number`
   - `lastPositionSeconds: number`
 - **Motivo**: "continuar donde quedé" y estado completado deben ser consistentes en multi-dispositivo.
+
+## 3) Leer detalle de un curso del instructor (vista completa, sin mutación)
+
+- **Necesidad**: En Studio, al seleccionar un curso existente, el Front necesita el `Course` completo (descripción, precio, portada, secciones/lecciones completas con `videoUrl`, `videoDuration`, `resourceUrls`, etc.) para editar datos y gestionar el temario sin hacks.
+- **Estado**: PENDIENTE
+- **Endpoint propuesto**: `GET /api/v1/me/instructor/courses/:id`
+- **Auth**: Bearer + rol `instructor` + dueño del curso
+- **Respuesta 200**: `Course`
+- **Motivo**: Evitar usar `PUT /api/v1/courses/:id` con body `{}` como “fetch” (semánticamente incorrecto).
+
+## 4) Listar reseñas públicas de una oferta (Marketplace)
+
+- **Necesidad**: En la ficha `/marketplace/[slug]` hay que mostrar reseñas reales, no hardcodeadas.
+- **Estado**: PENDIENTE
+- **Endpoint propuesto**: `GET /api/v1/offerings/:slug/reviews`
+- **Auth**: pública
+- **Respuesta 200**: `{ items: Review[]; page: number; limit: number; total: number; totalPages: number }`
+- **Motivo**: Mostrar prueba social sin inventar datos y permitir paginación.

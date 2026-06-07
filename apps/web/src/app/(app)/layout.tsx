@@ -20,9 +20,11 @@ import {
 } from '@kodira/ui';
 import {
   DashboardIcon,
+  CubeIcon,
   ExitIcon,
   ExternalLinkIcon,
   GearIcon,
+  IdCardIcon,
   MixerHorizontalIcon,
   PersonIcon,
   ReaderIcon,
@@ -82,12 +84,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   const isInstructor = session.status === 'success' && session.user.roles.includes('instructor');
+  const isSeller = session.status === 'success' && session.user.roles.includes('seller');
   const isDashboard = pathname === '/dashboard';
 
   const nav = [
     { href: '/dashboard', label: 'Inicio', icon: <DashboardIcon className="h-4 w-4" /> },
     { href: '/courses', label: 'Cursos', icon: <ReaderIcon className="h-4 w-4" /> },
+    { href: '/marketplace', label: 'Marketplace', icon: <CubeIcon className="h-4 w-4" /> },
     ...(isInstructor ? [{ href: '/studio', label: 'Studio', icon: <MixerHorizontalIcon className="h-4 w-4" /> }] : []),
+    { href: '/seller', label: isSeller ? 'Panel vendedor' : 'Hacerme vendedor', icon: <IdCardIcon className="h-4 w-4" /> },
   ];
 
   const onLogout = async () => {
@@ -107,6 +112,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const breadcrumbs: BreadcrumbItem[] = React.useMemo(() => {
     if (pathname === '/dashboard') return [{ label: 'Inicio' }];
     if (pathname === '/courses') return [{ label: 'Cursos' }];
+    if (pathname === '/marketplace') return [{ label: 'Marketplace' }];
     if (pathname.startsWith('/courses/') && courseSlug) {
       const title = courseQuery.data?.title ?? courseSlug;
       return [
@@ -115,7 +121,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         ...(isCourseLearn ? [{ label: 'Aula' }] : []),
       ];
     }
+    if (pathname.startsWith('/marketplace/')) {
+      if (segments[1] === 'sellers' && segments[2]) {
+        return [
+          { label: 'Marketplace', href: '/marketplace' },
+          { label: 'Vendedor' },
+        ];
+      }
+      if (segments[1]) {
+        return [
+          { label: 'Marketplace', href: '/marketplace' },
+          { label: 'Oferta' },
+        ];
+      }
+      return [{ label: 'Marketplace' }];
+    }
     if (pathname.startsWith('/studio')) return [{ label: 'Studio' }];
+    if (pathname.startsWith('/seller')) return [{ label: 'Panel vendedor' }];
     if (pathname.startsWith('/profile')) return [{ label: 'Perfil' }];
     if (pathname.startsWith('/settings')) return [{ label: 'Ajustes' }];
     return [{ label: 'KODIRA' }];
@@ -156,33 +178,39 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </nav>
 
       <div className="ml-auto flex items-center gap-3">
-        <div className="relative w-[200px] max-w-[46vw] sm:w-[240px]">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-dim"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="M21 21l-4-4" />
-          </svg>
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar cursos…"
-            className="h-10 rounded-[11px] border-line/10 bg-surface pl-9 pr-3 text-[13px]"
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter') return;
-              const q = search.trim();
-              router.push(q ? `/courses?q=${encodeURIComponent(q)}` : '/courses');
-            }}
-            disabled={session.status !== 'success'}
-            aria-label="Buscar cursos"
-          />
-        </div>
-
+        {(() => {
+          const isMarketplace = pathname === '/marketplace' || pathname.startsWith('/marketplace/');
+          const placeholder = isMarketplace ? 'Buscar ofertas…' : 'Buscar cursos…';
+          const targetBase = isMarketplace ? '/marketplace' : '/courses';
+          return (
+            <div className="relative w-[200px] max-w-[46vw] sm:w-[240px]">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-dim"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4-4" />
+              </svg>
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={placeholder}
+                className="h-10 rounded-[11px] border-line/10 bg-surface pl-9 pr-3 text-[13px]"
+                onKeyDown={(e) => {
+                  if (e.key !== 'Enter') return;
+                  const q = search.trim();
+                  router.push(q ? `${targetBase}?q=${encodeURIComponent(q)}` : targetBase);
+                }}
+                disabled={session.status !== 'success'}
+                aria-label={placeholder}
+              />
+            </div>
+          );
+        })()}
         {session.status === 'success' ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

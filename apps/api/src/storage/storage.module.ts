@@ -8,6 +8,7 @@ import { StorageService } from './storage.service';
   imports: [MongooseModule.forFeature([{ name: Course.name, schema: CourseSchema }])],
   controllers: [StorageController],
   providers: [StorageService],
+  exports: [StorageService],
 })
 export class StorageModule {}
 

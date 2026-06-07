@@ -149,3 +149,7 @@ Para que TODA la app sea coherente y de calidad sin rehacer cada pantalla:
 ## Idioma y comunicación
 - Las explicaciones al dueño van en español, breves y sin tecnicismos innecesarios.
 - El código, los nombres de variables y los identificadores, en inglés.
+
+Toda funcionalidad que cree o edite datos debe tener su interfaz en el front (formularios/modales con
+packages/ui y los 4 estados). Swagger y los endpoints son SOLO para pruebas; el usuario final hace todo
+desde el front, nunca llamando endpoints a mano.

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import * as crypto from 'node:crypto';
 import * as path from 'node:path';
@@ -132,6 +132,75 @@ export class StorageService {
 
     const publicUrl = this.buildPublicUrl(key);
     return { uploadUrl, publicUrl, key };
+  }
+
+  async createPutUploadUrl(params: {
+    key: string;
+    contentType: string;
+    cacheControl?: string;
+  }): Promise<{ uploadUrl: string }> {
+    const key = (params.key ?? '').trim().replace(/^\/+/, '');
+    const contentType = (params.contentType ?? '').trim();
+    if (!key) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'key is required',
+        details: { reason: 'INVALID_KEY' },
+      });
+    }
+    if (!contentType) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'contentType is required',
+        details: { reason: 'INVALID_CONTENT_TYPE' },
+      });
+    }
+
+    const uploadUrl = await this.signPutUrl({
+      key,
+      contentType,
+      cacheControl:
+        params.cacheControl ?? 'public, max-age=31536000, immutable',
+    });
+    return { uploadUrl };
+  }
+
+  async createGetDownloadUrl(params: {
+    key: string;
+    expiresInSeconds?: number;
+  }): Promise<{ downloadUrl: string }> {
+    const key = (params.key ?? '').trim().replace(/^\/+/, '');
+    if (!key || key.includes('..')) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'key is invalid',
+        details: { reason: 'INVALID_KEY' },
+      });
+    }
+
+    const expiresIn =
+      typeof params.expiresInSeconds === 'number' &&
+      params.expiresInSeconds > 0 &&
+      params.expiresInSeconds <= 3600
+        ? Math.floor(params.expiresInSeconds)
+        : 600;
+
+    const bucket = (this.config.get<string>('R2_BUCKET') ?? '').trim();
+    if (!bucket) {
+      throw new InternalServerErrorException({
+        code: 'INTERNAL_ERROR',
+        message: 'Storage is not configured',
+        details: { missing: ['R2_BUCKET'] },
+      });
+    }
+
+    const client = this.getS3Client();
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+    const downloadUrl = await getSignedUrl(client, command, { expiresIn });
+    return { downloadUrl };
   }
 
   private normalizeFilename(filename: string): string {

@@ -22,6 +22,23 @@ import { LessonsController } from '../src/education/lessons.controller';
 import { Course, CourseSchema } from '../src/education/schemas/course.schema';
 import { Category, CategorySchema } from '../src/education/schemas/category.schema';
 import { Enrollment, EnrollmentSchema } from '../src/education/schemas/enrollment.schema';
+import { MarketplaceSellersController } from '../src/marketplace/marketplace-sellers.controller';
+import { MarketplaceMeController } from '../src/marketplace/marketplace-me.controller';
+import { MarketplaceAdminSellersController } from '../src/marketplace/marketplace-admin-sellers.controller';
+import { MarketplaceAdminSettingsController } from '../src/marketplace/marketplace-admin-settings.controller';
+import { MarketplaceAdminOfferingsController } from '../src/marketplace/marketplace-admin-offerings.controller';
+import { MarketplacePublicOfferingsController } from '../src/marketplace/marketplace-public-offerings.controller';
+import { MarketplacePublicSellersController } from '../src/marketplace/marketplace-public-sellers.controller';
+import { MarketplaceSellersService } from '../src/marketplace/marketplace-sellers.service';
+import { MarketplaceSettingsService } from '../src/marketplace/marketplace-settings.service';
+import { MarketplaceOfferingsService } from '../src/marketplace/marketplace-offerings.service';
+import { MarketplaceAssetsService } from '../src/marketplace/marketplace-assets.service';
+import { MarketplacePublicService } from '../src/marketplace/marketplace-public.service';
+import { SellerProfile, SellerProfileSchema } from '../src/marketplace/schemas/seller-profile.schema';
+import { Offering, OfferingSchema } from '../src/marketplace/schemas/offering.schema';
+import { DigitalAsset, DigitalAssetSchema } from '../src/marketplace/schemas/digital-asset.schema';
+import { MarketplaceSettings, MarketplaceSettingsSchema } from '../src/marketplace/schemas/marketplace-settings.schema';
+import { StorageService } from '../src/storage/storage.service';
 
 describe('OpenAPI document (e2e)', () => {
   let app: INestApplication;
@@ -51,6 +68,10 @@ describe('OpenAPI document (e2e)', () => {
           { name: Course.name, schema: CourseSchema },
           { name: Category.name, schema: CategorySchema },
           { name: Enrollment.name, schema: EnrollmentSchema },
+          { name: SellerProfile.name, schema: SellerProfileSchema },
+          { name: Offering.name, schema: OfferingSchema },
+          { name: DigitalAsset.name, schema: DigitalAssetSchema },
+          { name: MarketplaceSettings.name, schema: MarketplaceSettingsSchema },
         ]),
       ],
       controllers: [
@@ -60,6 +81,13 @@ describe('OpenAPI document (e2e)', () => {
         EducationController,
         EducationMeController,
         LessonsController,
+        MarketplaceSellersController,
+        MarketplaceMeController,
+        MarketplaceAdminSellersController,
+        MarketplaceAdminSettingsController,
+        MarketplaceAdminOfferingsController,
+        MarketplacePublicOfferingsController,
+        MarketplacePublicSellersController,
       ],
       providers: [
         HealthService,
@@ -68,6 +96,12 @@ describe('OpenAPI document (e2e)', () => {
         JwtStrategy,
         EducationService,
         EnrollmentService,
+        MarketplaceSellersService,
+        MarketplaceSettingsService,
+        MarketplaceOfferingsService,
+        MarketplaceAssetsService,
+        MarketplacePublicService,
+        StorageService,
       ],
     }).compile();
 
@@ -81,7 +115,7 @@ describe('OpenAPI document (e2e)', () => {
     await mongo.stop();
   });
 
-  it('includes Auth, Users and Education endpoints', () => {
+  it('includes Auth, Users, Education and Marketplace endpoints', () => {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('KODIRA API')
       .setVersion('1.0.0')
@@ -104,6 +138,24 @@ describe('OpenAPI document (e2e)', () => {
     expect(paths.some((p) => p.includes('/courses/{id}/enroll'))).toBe(true);
     expect(paths.some((p) => p.includes('/courses/{id}/lessons'))).toBe(true);
     expect(paths.includes('/api/v1/me/instructor/courses')).toBe(true);
+    expect(paths.includes('/api/v1/sellers/apply')).toBe(true);
+    expect(paths.includes('/api/v1/me/seller')).toBe(true);
+    expect(paths.includes('/api/v1/admin/sellers')).toBe(true);
+    expect(paths.includes('/api/v1/admin/sellers/{id}/approve')).toBe(true);
+    expect(paths.includes('/api/v1/admin/sellers/{id}/reject')).toBe(true);
+    expect(paths.includes('/api/v1/admin/settings')).toBe(true);
+    expect(paths.includes('/api/v1/admin/settings/commission')).toBe(true);
+    expect(paths.includes('/api/v1/me/seller/offerings')).toBe(true);
+    expect(paths.includes('/api/v1/me/seller/offerings/{id}')).toBe(true);
+    expect(paths.includes('/api/v1/me/seller/offerings/{id}/submit')).toBe(true);
+    expect(paths.includes('/api/v1/me/seller/offerings/{id}/asset/upload-url')).toBe(true);
+    expect(paths.includes('/api/v1/me/seller/offerings/{id}/asset')).toBe(true);
+    expect(paths.includes('/api/v1/admin/offerings')).toBe(true);
+    expect(paths.includes('/api/v1/admin/offerings/{id}/approve')).toBe(true);
+    expect(paths.includes('/api/v1/admin/offerings/{id}/reject')).toBe(true);
+    expect(paths.includes('/api/v1/offerings')).toBe(true);
+    expect(paths.includes('/api/v1/offerings/{slug}')).toBe(true);
+    expect(paths.includes('/api/v1/sellers/{id}')).toBe(true);
 
     const lessonSchema = doc.components?.schemas?.LessonDto as any;
     expect(lessonSchema?.properties?.lessonProgress).toBeDefined();

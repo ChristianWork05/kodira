@@ -77,6 +77,22 @@ export const kodiraUiPreset = {
           '0%': { opacity: '1', transform: 'translate3d(0,0,0) scale(1)' },
           '100%': { opacity: '0', transform: 'translate3d(0,-4px,0) scale(0.98)' },
         },
+        'dialog-overlay-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'dialog-overlay-out': {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        'dialog-in': {
+          '0%': { opacity: '0', transform: 'translate3d(0,14px,0) scale(0.985)' },
+          '100%': { opacity: '1', transform: 'translate3d(0,0,0) scale(1)' },
+        },
+        'dialog-out': {
+          '0%': { opacity: '1', transform: 'translate3d(0,0,0) scale(1)' },
+          '100%': { opacity: '0', transform: 'translate3d(0,10px,0) scale(0.985)' },
+        },
         shimmer: {
           to: { backgroundPosition: '-200% 0' },
         },
@@ -90,6 +106,10 @@ export const kodiraUiPreset = {
         'aurora-3': 'aurora-3 15s var(--ease-soft) infinite',
         'dropdown-in': 'dropdown-in 180ms var(--ease-brand) both',
         'dropdown-out': 'dropdown-out 140ms var(--ease-brand) both',
+        'dialog-overlay-in': 'dialog-overlay-in 160ms var(--ease-brand) both',
+        'dialog-overlay-out': 'dialog-overlay-out 120ms var(--ease-brand) both',
+        'dialog-in': 'dialog-in 220ms var(--ease-brand) both',
+        'dialog-out': 'dialog-out 160ms var(--ease-brand) both',
         shimmer: 'shimmer 1.4s linear infinite',
         spin: 'spin 0.8s linear infinite',
       },

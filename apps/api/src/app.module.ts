@@ -14,6 +14,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { EducationModule } from './education/education.module';
 import { StorageModule } from './storage/storage.module';
+import { MarketplaceModule } from './marketplace/marketplace.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { StorageModule } from './storage/storage.module';
     AuthModule,
     EducationModule,
     StorageModule,
+    MarketplaceModule,
   ],
   controllers: [AppController],
   providers: [
